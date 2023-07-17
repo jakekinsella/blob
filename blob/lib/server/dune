@@ -1,0 +1,11 @@
+(library
+  (name blob)
+  (libraries
+    common
+    model
+    database
+    dream
+    yojson
+    ppx_deriving_yojson.runtime
+    jose)
+  (preprocess (pps lwt_ppx ppx_deriving_yojson)))
