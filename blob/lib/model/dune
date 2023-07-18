@@ -2,12 +2,8 @@
   (name model)
   (libraries
     common
-    cohttp-lwt-unix
-    cohttp-async
+    base
+    core
     yojson
-    ppx_deriving_yojson.runtime
-    uuidm
-    safepass
-    jose
-    ptime.clock.os)
+    ppx_deriving_yojson.runtime)
   (preprocess (pps ppx_deriving_yojson lwt_ppx)))

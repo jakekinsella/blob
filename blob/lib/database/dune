@@ -3,10 +3,10 @@
   (libraries
     common
     model
+    base
+    core
     caqti
     caqti-lwt
     caqti-driver-postgresql
-    ppx_rapper_lwt
-    safepass
-    dream)
+    ppx_rapper_lwt)
   (preprocess (pps lwt_ppx ppx_rapper)))

@@ -4,8 +4,9 @@
     common
     model
     database
+    base
+    core
     dream
     yojson
-    ppx_deriving_yojson.runtime
-    jose)
+    ppx_deriving_yojson.runtime)
   (preprocess (pps lwt_ppx ppx_deriving_yojson)))
