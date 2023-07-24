@@ -1,5 +1,5 @@
-open Base
-open Core
+open! Base
+open! Core
 
 module Tag = struct
   module Encoding = struct
