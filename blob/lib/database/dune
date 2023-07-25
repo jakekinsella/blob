@@ -6,7 +6,7 @@
     base
     core
     caqti
-    caqti-async
+    caqti-lwt
     caqti-driver-postgresql
-    async)
-  (preprocess (pps ppx_jane)))
+    lwt)
+  (preprocess (pps ppx_deriving_yojson ppx_jane lwt_ppx)))

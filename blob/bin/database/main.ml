@@ -1,14 +1,14 @@
 open! Base
 open! Core
-open Async
+open Lwt
 
 let migrate () =
-  let%bind _ = Database.Connect.connect () in
+  let%lwt _ = Database.Connect.connect () in
   let _ = Stdlib.Printf.printf("Migration complete\n") in
   return ()
 
 let rollback () =
-  let%bind _ = Database.Connect.connect () in
+  let%lwt _ = Database.Connect.connect () in
   let _ = Stdlib.Printf.printf("Rollback complete\n") in
   return ()
 
@@ -18,11 +18,11 @@ let run mode = match mode with
   | _ -> Stdlib.Printf.printf("Invalid mode argument\n"); return ()
 
 let () =
-  Command.async
+  Command.basic
     ~summary: "test"
     Command.Param.(
       let%map.Command mode = anon ("mode" %: string) in
-      fun () -> run mode
+      fun () -> Lwt_main.run (run mode)
     )
   |> Command_unix.run
 
