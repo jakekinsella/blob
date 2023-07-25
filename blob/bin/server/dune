@@ -1,4 +1,4 @@
 (executable
  (public_name blob)
  (name main)
- (libraries blob))
+ (libraries server))

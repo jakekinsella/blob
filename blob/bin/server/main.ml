@@ -1,4 +1,4 @@
 open! Base
 open! Core
 
-let () = Blob.Server.run()
+let () = Server.run()

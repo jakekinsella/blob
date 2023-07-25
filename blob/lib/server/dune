@@ -1,5 +1,5 @@
 (library
-  (name blob)
+  (name server)
   (libraries
     common
     model

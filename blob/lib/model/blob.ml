@@ -39,3 +39,11 @@ type t = {
   body : string;
   tags : Tag.t list;
 } [@@deriving yojson]
+
+module Frontend = struct
+  type t = {
+    key : string;
+    body : string;
+    tags : string list;
+  } [@@deriving yojson]
+end
