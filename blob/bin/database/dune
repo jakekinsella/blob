@@ -1,4 +1,5 @@
 (executable
  (public_name database)
  (name main)
- (libraries database))
+ (libraries database core_unix.command_unix)
+ (preprocess (pps ppx_jane)))

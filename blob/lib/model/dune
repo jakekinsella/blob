@@ -6,4 +6,4 @@
     core
     yojson
     ppx_deriving_yojson.runtime)
-  (preprocess (pps ppx_deriving_yojson lwt_ppx)))
+  (preprocess (pps ppx_deriving_yojson ppx_jane)))

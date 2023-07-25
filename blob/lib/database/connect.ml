@@ -1,5 +1,6 @@
 open! Base
 open! Core
+open Async
 
 module type t = Caqti_lwt.CONNECTION
 
@@ -12,6 +13,6 @@ let url =
     "postgresql://" ^ user ^ ":" ^ password ^ "@" ^ host ^ ":" ^ port ^ "/" ^ database
 
 let connect () =
-  match%lwt Caqti_lwt.connect (Uri.of_string url) with
-    | Ok connection -> Lwt.return connection
+  match%bind Caqti_async.connect (Uri.of_string url) with
+    | Ok connection -> return connection
     | Error err -> failwith (Caqti_error.show err)
