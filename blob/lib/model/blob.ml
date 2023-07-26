@@ -32,6 +32,26 @@ module Tag = struct
   let make key value =
     Encoding.try_make key value |> Option.map ~f: (fun x -> Encoding x) |>
     Option.value ~default: (Other (Other.make key value))
+
+  let key tag = match tag with
+    | Encoding _ -> "_type"
+    | Other tag -> tag.key
+
+  let value tag = match tag with
+    | Encoding Encoding.PlainText -> "plaintext"
+    | Encoding Encoding.Base64 -> "base64"
+    | Encoding (Encoding.Other _type) -> _type
+    | Other tag -> tag.value
+
+  module Frontend = struct
+    type t = {
+      key : string;
+      value : string;
+    } [@@deriving yojson]
+
+    let to_frontend tag =
+      { key = key tag; value = value tag }
+  end
 end
 
 type t = {
@@ -41,9 +61,14 @@ type t = {
 } [@@deriving yojson]
 
 module Frontend = struct
+  type outer = t
+
   type t = {
     key : string;
     body : string;
-    tags : string list;
+    tags : Tag.Frontend.t list;
   } [@@deriving yojson]
+
+  let to_frontend (blob : outer) =
+    { key = blob.key; body = blob.body; tags = List.map ~f: Tag.Frontend.to_frontend blob.tags }
 end
