@@ -9,4 +9,4 @@
     caqti-lwt
     caqti-driver-postgresql
     lwt)
-  (preprocess (pps ppx_deriving_yojson ppx_jane lwt_ppx)))
+  (preprocess (pps ppx_deriving_yojson ppx_jane lwt_ppx ppx_rapper)))

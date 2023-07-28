@@ -43,6 +43,9 @@ module Tag = struct
     | Encoding (Encoding.Other _type) -> _type
     | Other tag -> tag.value
 
+  let to_string tag =
+    key tag ^ "=" ^ value tag
+
   module Frontend = struct
     type t = {
       key : string;
