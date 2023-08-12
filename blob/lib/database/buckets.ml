@@ -48,22 +48,22 @@ let by_name_query = [%rapper
 
 let migrate connection =
   let query = migrate_query () in
-    query connection |> Error.Database.or_print
+  query connection |> Error.Database.or_print
 
 let rollback connection =
   let query = rollback_query () in
-    query connection |> Error.Database.or_print
+  query connection |> Error.Database.or_print
 
 let by_name name connection =
   let query = by_name_query ~name: name in
-    query connection |> Error.Database.or_error_opt
+  query connection |> Error.Database.or_error_opt
 
 let create bucket connection =
   let Bucket.({ name; policy }) = bucket in
   let out_policy = policy |> Bucket.Policy.to_yojson |> Yojson.Safe.to_string in
   let query = create_query ~name: name ~policy: out_policy in
-    query connection |> Error.Database.or_error
+  query connection |> Error.Database.or_error
 
 let delete name connection =
   let query = delete_query ~name: name in
-    query connection |> Error.Database.or_error
+  query connection |> Error.Database.or_error

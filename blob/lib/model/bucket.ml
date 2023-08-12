@@ -7,7 +7,7 @@ module Policy = struct
   end
 
   module Action = struct
-    type t = All | Read | Write [@@deriving yojson]
+    type t = All | Read | Write | List [@@deriving yojson]
   end
 
   module Principal = struct

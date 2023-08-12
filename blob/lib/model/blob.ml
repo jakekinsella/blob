@@ -58,6 +58,7 @@ module Tag = struct
 end
 
 type t = {
+  bucket : string;
   key : string;
   body : string;
   tags : Tag.t list;
@@ -67,11 +68,12 @@ module Frontend = struct
   type outer = t
 
   type t = {
+    bucket : string;
     key : string;
     body : string;
     tags : Tag.Frontend.t list;
   } [@@deriving yojson]
 
   let to_frontend (blob : outer) =
-    { key = blob.key; body = blob.body; tags = List.map ~f: Tag.Frontend.to_frontend blob.tags }
+    { bucket = blob.bucket; key = blob.key; body = blob.body; tags = List.map ~f: Tag.Frontend.to_frontend blob.tags }
 end
