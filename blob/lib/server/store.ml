@@ -1,4 +1,4 @@
-open Lwt
+open Lwt_result
 
 open Common
 
@@ -26,37 +26,56 @@ module Policy = struct
     | Principal.All -> true
     | Principal.UserId principal -> principal == context.user_id
 
-  module Read = struct
-    let apply context statement =
-      let Statement.({ effect; action; principal }) = statement in
-      (if principal_matches context principal then
-        (match (effect, action) with
-        | (_, Action.Write) -> return ()
-        | (_, Action.List) -> return ()
-        | (Effect.Deny, (Action.All | Action.Read)) -> fail Unauthorized
-        | (Effect.Allow, (Action.All | Action.Read)) -> return ())
-      else
-        return ())
+  let apply context for_action statement =
+    let Statement.({ effect; action; principal }) = statement in
+    (if principal_matches context principal && action == for_action then
+      match effect with
+      | (Effect.Deny) -> fail Unauthorized
+      | (Effect.Allow) -> return ()
+    else
+      return ())
 
-    let guard (context : Context.t) =
-      let { head; rest } = context.bucket.policy in
-      let%lwt _ = apply context head in
-      let%lwt _ = Magic.Lwt.flatmap (apply context) rest in
-      return ()
+  let guard_for (context : Context.t) for_action =
+    let { head; rest } = context.bucket.policy in
+    let%lwt _ = apply context for_action head in
+    let%lwt _ = Magic.Lwt.flatmap (apply context for_action) rest in
+    return ()
+
+  module Read = struct
+    let guard context = guard_for context Action.Read
+  end
+
+  module List = struct
+    let guard context = guard_for context Action.List
+  end
+
+  module Write = struct
+    let guard context = guard_for context Action.Write
   end
 end
 
 module Blob = struct
   let get bucket key context =
     let Context.({ connection; _ }) = context in
-    let%lwt resolved = Database.Buckets.by_name bucket connection in
-    match resolved with
-    | Ok bucket ->
+    Database.Buckets.by_name bucket connection >>= fun bucket ->
       let%lwt _ = Policy.Read.guard Policy.Context.({ connection = context.connection; user_id = context.user_id; bucket = bucket }) in
       Database.Blobs.by_key bucket.name key connection
-    | Error e -> Lwt_result.fail e
 
-  (* let list bucket prefix = () *)
-  (* let create blob = () *)
-  (* let delete bucket key = () *)
+  let list bucket prefix context =
+    let Context.({ connection; _ }) = context in
+    Database.Buckets.by_name bucket connection >>= fun bucket ->
+      let%lwt _ = Policy.List.guard Policy.Context.({ connection = context.connection; user_id = context.user_id; bucket = bucket }) in
+      Database.Blobs.by_prefix bucket.name prefix connection
+
+  let create (blob : Model.Blob.t) context =
+    let Context.({ connection; _ }) = context in
+    Database.Buckets.by_name blob.bucket connection >>= fun bucket ->
+      let%lwt _ = Policy.Write.guard Policy.Context.({ connection = context.connection; user_id = context.user_id; bucket = bucket }) in
+      Database.Blobs.create blob connection
+
+  let delete bucket key context =
+    let Context.({ connection; _ }) = context in
+    Database.Buckets.by_name bucket connection >>= fun bucket ->
+      let%lwt _ = Policy.Write.guard Policy.Context.({ connection = context.connection; user_id = context.user_id; bucket = bucket }) in
+      Database.Blobs.delete bucket.name key connection
 end
