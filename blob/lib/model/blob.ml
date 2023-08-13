@@ -77,3 +77,6 @@ module Frontend = struct
   let to_frontend (blob : outer) =
     { bucket = blob.bucket; key = blob.key; body = blob.body; tags = List.map ~f: Tag.Frontend.to_frontend blob.tags }
 end
+
+let from_frontend (blob : Frontend.t) =
+  { bucket = blob.bucket; key = blob.key; body = blob.body; tags = List.map ~f: (fun tag -> Tag.make tag.key tag.value ) blob.tags }

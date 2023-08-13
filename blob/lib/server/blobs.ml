@@ -30,16 +30,67 @@ let routes = [
         throw_error Error.Frontend.BadRequest
     );
 
-    Dream.post "/list" (fun _ ->
-      json { message = "ok" } status_response_to_yojson
+    Dream.post "/list" (fun request ->
+      let user_id = Dream.field request Common.Middleware.Auth.user_id in
+      let%lwt connection = Dream.sql request (fun connection -> return connection) in
+      let context = Store.Context.({ connection; user_id }) in
+
+      let%lwt body = Dream.body request in
+      let req = body |> Yojson.Safe.from_string |> list_request_of_yojson in
+
+      match req with
+      | Ok { bucket; prefix } ->
+        Dream.log "[/blobs/list] bucket: `%s` prefix: `%s`" bucket prefix;
+        (match%lwt Store.Blob.list bucket prefix context with
+        | Ok _ ->
+          json { message = "ok" } status_response_to_yojson
+        | Error e ->
+          Dream.log "[/blobs/list] bucket: `%s` prefix: `%s` - failed with `%s`" bucket prefix (Api.Error.Database.to_string e);
+          throw_error (Error.Frontend.InternalServerError (Api.Error.Database.to_string e)))
+      | Error _ ->
+        throw_error Error.Frontend.BadRequest
     );
 
-    Dream.post "/put" (fun _ ->
-      json { message = "ok" } status_response_to_yojson
+    Dream.post "/create" (fun request ->
+      let user_id = Dream.field request Common.Middleware.Auth.user_id in
+      let%lwt connection = Dream.sql request (fun connection -> return connection) in
+      let context = Store.Context.({ connection; user_id }) in
+
+      let%lwt body = Dream.body request in
+      let blob = body |> Yojson.Safe.from_string |> Model.Blob.Frontend.of_yojson in
+
+      match blob with
+      | Ok blob ->
+        Dream.log "[/blobs/create] bucket: `%s` key: `%s`" blob.bucket blob.key;
+        (match%lwt Store.Blob.create (Model.Blob.from_frontend blob) context with
+        | Ok _ ->
+          json { message = "ok" } status_response_to_yojson
+        | Error e ->
+          Dream.log "[/blobs/create] bucket: `%s` key: `%s` - failed with `%s`" blob.bucket blob.key (Api.Error.Database.to_string e);
+          throw_error (Error.Frontend.InternalServerError (Api.Error.Database.to_string e)))
+      | Error _ ->
+        throw_error Error.Frontend.BadRequest
     );
 
-    Dream.post "/delete" (fun _ ->
-      json { message = "ok" } status_response_to_yojson
+    Dream.post "/delete" (fun request ->
+      let user_id = Dream.field request Common.Middleware.Auth.user_id in
+      let%lwt connection = Dream.sql request (fun connection -> return connection) in
+      let context = Store.Context.({ connection; user_id }) in
+
+      let%lwt body = Dream.body request in
+      let req = body |> Yojson.Safe.from_string |> delete_request_of_yojson in
+
+      match req with
+      | Ok { bucket; key } ->
+        Dream.log "[/blobs/delete] bucket: `%s` key: `%s`" bucket key;
+        (match%lwt Store.Blob.delete bucket key context with
+        | Ok _ ->
+          json { message = "ok" } status_response_to_yojson
+        | Error e ->
+          Dream.log "[/blobs/delete] bucket: `%s` key: `%s` - failed with `%s`" bucket key (Api.Error.Database.to_string e);
+          throw_error (Error.Frontend.InternalServerError (Api.Error.Database.to_string e)))
+      | Error _ ->
+        throw_error Error.Frontend.BadRequest
     );
   ]
 ]
