@@ -7,7 +7,7 @@ exception Unauthorized
 module Context = struct
   type t = {
     connection : Caqti_lwt.connection;
-    user_id : string;
+    user_id : string option;
   }
 end
 
@@ -17,14 +17,17 @@ module Policy = struct
   module Context = struct
     type t = {
       connection : Caqti_lwt.connection;
-      user_id : string;
+      user_id : string option;
       bucket : Model.Bucket.t;
     }
   end
 
   let principal_matches (context : Context.t) principal = match principal with
     | Principal.All -> true
-    | Principal.UserId principal -> principal == context.user_id
+    | Principal.UserId principal ->
+      (match context.user_id with
+      | Some user_id -> principal == user_id
+      | None -> false)
 
   let apply context for_action statement =
     let Statement.({ effect; action; principal }) = statement in
@@ -56,9 +59,12 @@ end
 
 module Blob = struct
   let get bucket key context =
+    let _ = Dream.log "[Store.Blob.get] bucket: `%s` key: `%s`" bucket key in
     let Context.({ connection; _ }) = context in
     Database.Buckets.by_name bucket connection >>= fun bucket ->
+      let _ = Dream.log "[Store.Blob.get] bucket: `%s` key: `%s` - found bucket" bucket.name key in
       let%lwt _ = Policy.Read.guard Policy.Context.({ connection = context.connection; user_id = context.user_id; bucket = bucket }) in
+      let _ = Dream.log "[Store.Blob.get] bucket: `%s` key: `%s` - authorized" bucket.name key in
       Database.Blobs.by_key bucket.name key connection
 
   let list bucket prefix context =
