@@ -9,14 +9,11 @@ let migrate () =
 
   let email = "jake.kinsella@gmail.com" in
   let user_id = email |> Uuidm.v5 Uuidm.ns_url |> Uuidm.to_string in
-  let policy = Policy.({
-    head = Policy.Statement.({
-      effect = Policy.Effect.Allow;
-      action = Policy.Action.All;
-      principal = Policy.Principal.UserId user_id;
-    });
-    rest = []
-  }) in
+  let policy = [Policy.Statement.({
+    effect = Policy.Effect.Allow;
+    action = Policy.Action.All;
+    principal = Policy.Principal.UserId user_id;
+  })]  in
   let bucket = { name = email; policy = policy } in
 
   let%lwt _ = Database.Buckets.migrate connection in

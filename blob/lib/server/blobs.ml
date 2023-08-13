@@ -25,7 +25,7 @@ let routes = [
           json (blob |> Model.Blob.Frontend.to_frontend) Model.Blob.Frontend.to_yojson
         | Error e ->
           Dream.log "[/blobs/get] bucket: `%s` key: `%s` - failed with `%s`" bucket key (Api.Error.Database.to_string e);
-          throw_error (Error.Frontend.InternalServerError (Api.Error.Database.to_string e)))
+          throw_error (Error.Database.to_frontend e))
       | Error _ ->
         throw_error Error.Frontend.BadRequest
     );
@@ -46,7 +46,7 @@ let routes = [
           json { blobs = blobs |> List.map ~f: Model.Blob.Head.Frontend.to_frontend } list_response_to_yojson
         | Error e ->
           Dream.log "[/blobs/list] bucket: `%s` prefix: `%s` - failed with `%s`" bucket prefix (Api.Error.Database.to_string e);
-          throw_error (Error.Frontend.InternalServerError (Api.Error.Database.to_string e)))
+          throw_error (Error.Database.to_frontend e))
       | Error _ ->
         throw_error Error.Frontend.BadRequest
     );
@@ -67,7 +67,7 @@ let routes = [
           json { message = "ok" } status_response_to_yojson
         | Error e ->
           Dream.log "[/blobs/create] bucket: `%s` key: `%s` - failed with `%s`" blob.bucket blob.key (Api.Error.Database.to_string e);
-          throw_error (Error.Frontend.InternalServerError (Api.Error.Database.to_string e)))
+          throw_error (Error.Database.to_frontend e))
       | Error _ ->
         throw_error Error.Frontend.BadRequest
     );
@@ -88,7 +88,7 @@ let routes = [
           json { message = "ok" } status_response_to_yojson
         | Error e ->
           Dream.log "[/blobs/delete] bucket: `%s` key: `%s` - failed with `%s`" bucket key (Api.Error.Database.to_string e);
-          throw_error (Error.Frontend.InternalServerError (Api.Error.Database.to_string e)))
+          throw_error (Error.Database.to_frontend e))
       | Error _ ->
         throw_error Error.Frontend.BadRequest
     );

@@ -7,7 +7,10 @@ module Policy = struct
   end
 
   module Action = struct
-    type t = All | Read | Write | List [@@deriving yojson]
+    type t = All | Read | Write | List [@@deriving equal, yojson]
+
+    let (=) action1 action2 =
+      ([%equal: t] action1 action2) || ([%equal: t] action1 All) || ([%equal: t] action2 All)
   end
 
   module Principal = struct
@@ -22,15 +25,9 @@ module Policy = struct
     } [@@deriving yojson]
   end
 
-  type t = {
-    head : Statement.t;
-    rest : Statement.t list;
-  } [@@deriving yojson]
+  type t = Statement.t list [@@deriving yojson]
 
-  let deny_all = {
-    head = Statement.({ effect = Effect.Deny; action = Action.All; principal = Principal.All });
-    rest = [];
-  }
+  let deny_all = [Statement.({ effect = Effect.Deny; action = Action.All; principal = Principal.All })]
 end
 
 type t = {
