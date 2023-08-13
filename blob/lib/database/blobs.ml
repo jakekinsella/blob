@@ -5,7 +5,7 @@ open Common
 open Common.Api
 open Model
 
-let make ~bucket ~key ~body ~tags =
+let make_tags tags =
   let pairs = String.split ~on: ',' tags in
   let out_tags = pairs
     |> List.map ~f: (String.split ~on: '=')
@@ -13,7 +13,13 @@ let make ~bucket ~key ~body ~tags =
       | [key; value] -> Some (Blob.Tag.make key value)
       | _ -> None)
     |> Magic.List.flatten_option in
-  Blob.({ bucket = bucket; key = key; body = body; tags = out_tags })
+  out_tags
+
+let make ~bucket ~key ~body ~tags =
+  Blob.({ bucket = bucket; key = key; body = body; tags = make_tags tags })
+
+let make_head ~bucket ~key ~tags =
+  Blob.Head.({ bucket = bucket; key = key; tags = make_tags tags })
 
 let migrate_query = [%rapper
   execute {sql|
@@ -59,12 +65,12 @@ let by_key_query = [%rapper
 
 let by_prefix_query = [%rapper
   get_many {sql|
-    SELECT @string{blobs.bucket}, @string{blobs.key}, @string{blobs.body}, @string{blobs.tags}
+    SELECT @string{blobs.bucket}, @string{blobs.key}, @string{blobs.tags}
     FROM blobs
     WHERE bucket = %string{bucket} AND key LIKE (%string{prefix} || '%')
   |sql}
   function_out
-](make)
+](make_head)
 
 let migrate connection =
   let query = migrate_query () in

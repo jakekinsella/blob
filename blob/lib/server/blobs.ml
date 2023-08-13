@@ -21,8 +21,8 @@ let routes = [
       | Ok { bucket; key } ->
         Dream.log "[/blobs/get] bucket: `%s` key: `%s`" bucket key;
         (match%lwt Store.Blob.get bucket key context with
-        | Ok _ ->
-          json { message = "ok" } status_response_to_yojson
+        | Ok blob ->
+          json (blob |> Model.Blob.Frontend.to_frontend) Model.Blob.Frontend.to_yojson
         | Error e ->
           Dream.log "[/blobs/get] bucket: `%s` key: `%s` - failed with `%s`" bucket key (Api.Error.Database.to_string e);
           throw_error (Error.Frontend.InternalServerError (Api.Error.Database.to_string e)))
@@ -42,8 +42,8 @@ let routes = [
       | Ok { bucket; prefix } ->
         Dream.log "[/blobs/list] bucket: `%s` prefix: `%s`" bucket prefix;
         (match%lwt Store.Blob.list bucket prefix context with
-        | Ok _ ->
-          json { message = "ok" } status_response_to_yojson
+        | Ok blobs ->
+          json { blobs = blobs |> List.map ~f: Model.Blob.Head.Frontend.to_frontend } list_response_to_yojson
         | Error e ->
           Dream.log "[/blobs/list] bucket: `%s` prefix: `%s` - failed with `%s`" bucket prefix (Api.Error.Database.to_string e);
           throw_error (Error.Frontend.InternalServerError (Api.Error.Database.to_string e)))
