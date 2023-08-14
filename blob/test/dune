@@ -1,2 +1,12 @@
-(test
- (name blob))
+(library
+  (name blob)
+  (libraries
+    common
+    model
+    database
+    server
+    base
+    core
+    lwt)
+  (inline_tests)
+  (preprocess (pps ppx_jane lwt_ppx ppx_inline_test ppx_assert)))
