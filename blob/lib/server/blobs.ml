@@ -12,7 +12,7 @@ let routes = [
     Dream.post "/get" (fun request ->
       let user_id = Dream.field request Common.Middleware.Auth.user_id in
       let%lwt connection = Dream.sql request (fun connection -> return connection) in
-      let context = Store.Context.({ connection; user_id }) in
+      let context = Store.Blob.Context.({ connection; user_id }) in
 
       let%lwt body = Dream.body request in
       let req = body |> Yojson.Safe.from_string |> get_request_of_yojson in
@@ -33,7 +33,7 @@ let routes = [
     Dream.post "/list" (fun request ->
       let user_id = Dream.field request Common.Middleware.Auth.user_id in
       let%lwt connection = Dream.sql request (fun connection -> return connection) in
-      let context = Store.Context.({ connection; user_id }) in
+      let context = Store.Blob.Context.({ connection; user_id }) in
 
       let%lwt body = Dream.body request in
       let req = body |> Yojson.Safe.from_string |> list_request_of_yojson in
@@ -54,7 +54,7 @@ let routes = [
     Dream.post "/create" (fun request ->
       let user_id = Dream.field request Common.Middleware.Auth.user_id in
       let%lwt connection = Dream.sql request (fun connection -> return connection) in
-      let context = Store.Context.({ connection; user_id }) in
+      let context = Store.Blob.Context.({ connection; user_id }) in
 
       let%lwt body = Dream.body request in
       let blob = body |> Yojson.Safe.from_string |> Model.Blob.Frontend.of_yojson in
@@ -75,7 +75,7 @@ let routes = [
     Dream.post "/delete" (fun request ->
       let user_id = Dream.field request Common.Middleware.Auth.user_id in
       let%lwt connection = Dream.sql request (fun connection -> return connection) in
-      let context = Store.Context.({ connection; user_id }) in
+      let context = Store.Blob.Context.({ connection; user_id }) in
 
       let%lwt body = Dream.body request in
       let req = body |> Yojson.Safe.from_string |> delete_request_of_yojson in

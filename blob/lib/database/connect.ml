@@ -2,8 +2,6 @@ open! Base
 open! Core
 open Lwt
 
-module type t = Caqti_lwt.CONNECTION
-
 let url =
   let user = Sys.getenv "PGUSER" |> Option.value ~default: "UNKNOWN" in
   let password = Sys.getenv "PGPASSWORD" |> Option.value ~default: "UNKNOWN" in

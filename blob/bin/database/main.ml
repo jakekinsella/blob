@@ -16,10 +16,10 @@ let migrate () =
   })]  in
   let bucket = { name = email; policy = policy } in
 
-  let%lwt _ = Database.Buckets.migrate connection in
-  let%lwt _ = Database.Blobs.migrate connection in
+  let%lwt _ = Database.BucketsTable.migrate connection in
+  let%lwt _ = Database.BlobsTable.migrate connection in
 
-  let%lwt _ = Database.Buckets.create bucket connection in
+  let%lwt _ = Database.BucketsTable.create bucket connection in
 
   let _ = Stdlib.Printf.printf("Migration complete\n") in
   return ()
@@ -27,8 +27,8 @@ let migrate () =
 let rollback () =
   let%lwt connection = Database.Connect.connect () in
   
-  let%lwt _ = Database.Blobs.rollback connection in
-  let%lwt _ = Database.Buckets.rollback connection in
+  let%lwt _ = Database.BlobsTable.rollback connection in
+  let%lwt _ = Database.BucketsTable.rollback connection in
 
   let _ = Stdlib.Printf.printf("Rollback complete\n") in
   return ()
