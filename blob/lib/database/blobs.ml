@@ -6,7 +6,7 @@ open Common.Api
 open Model
 
 module type BlobStore = sig
-  type connection = Caqti_lwt.connection
+  type connection
 
   val migrate : connection -> Unit.t Lwt.t
   val rollback : connection -> Unit.t Lwt.t
@@ -17,7 +17,7 @@ module type BlobStore = sig
   val delete : string -> string -> connection -> (Unit.t, Error.Database.t) Lwt_result.t
 end
 
-module BlobsTable : BlobStore = struct
+module BlobsTable = struct
   type connection = Caqti_lwt.connection
 
   let make_tags tags =

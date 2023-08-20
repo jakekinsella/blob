@@ -5,7 +5,7 @@ open Common.Api
 open Model
 
 module type BucketStore = sig
-  type connection = Caqti_lwt.connection
+  type connection
 
   val migrate : connection -> Unit.t Lwt.t
   val rollback : connection -> Unit.t Lwt.t
@@ -15,7 +15,7 @@ module type BucketStore = sig
   val delete : string -> connection -> (Unit.t, Error.Database.t) Lwt_result.t
 end
 
-module BucketsTable : BucketStore = struct
+module BucketsTable = struct
   type connection = Caqti_lwt.connection
 
   let make ~name ~policy =
