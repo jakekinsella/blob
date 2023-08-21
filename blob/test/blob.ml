@@ -2,6 +2,7 @@ open! Base
 open! Core
 
 open Model
+open Server
 open Common.Api
 
 type bucket = {
@@ -75,7 +76,36 @@ module BlobsMock = struct
     | None -> Lwt_result.fail Error.Database.NotFound
 end
 
-module Blob = Server.Store.BlobStore(BlobsMock)(BucketsMock)
+module Blob = Store.BlobStore(BlobsMock)(BucketsMock)
 
-let%test_unit "test" =
-  [%test_eq: bool] true false
+let%test_unit "deny all (create)" =
+  let table = { buckets = Hashtbl.create (module String) } in
+  let context = Blob.Context.({ connection = table; user_id = Some "user" }) in
+  let _ = BucketsMock.create Bucket.({ name = "test"; policy = Bucket.Policy.deny_all }) table |> Lwt_main.run in
+
+  let res = Blob.create Model.Blob.({ bucket = "test"; key = "key"; body = ""; tags = [] }) context |> Lwt_main.run in
+  [%test_eq: (unit, Error.Database.t) Result.t] res (Error Error.Database.Unauthorized)
+
+let%test_unit "deny all (delete)" =
+  let table = { buckets = Hashtbl.create (module String) } in
+  let context = Blob.Context.({ connection = table; user_id = Some "user" }) in
+  let _ = BucketsMock.create Bucket.({ name = "test"; policy = Bucket.Policy.deny_all }) table |> Lwt_main.run in
+  
+  let res = Blob.delete "test" "key" context |> Lwt_main.run in
+  [%test_eq: (unit, Error.Database.t) Result.t] res (Error Error.Database.Unauthorized)
+
+let%test_unit "deny all (get)" =
+  let table = { buckets = Hashtbl.create (module String) } in
+  let context = Blob.Context.({ connection = table; user_id = Some "user" }) in
+  let _ = BucketsMock.create Bucket.({ name = "test"; policy = Bucket.Policy.deny_all }) table |> Lwt_main.run in
+  
+  let res = Blob.get "test" "key" context |> Lwt_main.run in
+  [%test_eq: (Model.Blob.t, Error.Database.t) Result.t] res (Error Error.Database.Unauthorized)
+
+let%test_unit "deny all (list)" =
+  let table = { buckets = Hashtbl.create (module String) } in
+  let context = Blob.Context.({ connection = table; user_id = Some "user" }) in
+  let _ = BucketsMock.create Bucket.({ name = "test"; policy = Bucket.Policy.deny_all }) table |> Lwt_main.run in
+  
+  let res = Blob.list "test" "key" context |> Lwt_main.run in
+  [%test_eq: (Model.Blob.Head.t list, Error.Database.t) Result.t] res (Error Error.Database.Unauthorized)

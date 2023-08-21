@@ -3,7 +3,7 @@ open! Core
 
 module Tag = struct
   module Encoding = struct
-    type t = PlainText | Base64 | Other of string [@@deriving yojson]
+    type t = PlainText | Base64 | Other of string [@@deriving yojson, sexp, compare]
 
     let try_make key value =
       if String.(key = "_type") then
@@ -18,7 +18,7 @@ module Tag = struct
     type t = {
       key : string;
       value : string;
-    } [@@deriving yojson]
+    } [@@deriving yojson, sexp, compare]
 
     let make key value = { key = key; value = value }
   end
@@ -26,7 +26,7 @@ module Tag = struct
   type t =
   | Encoding of Encoding.t
   | Other of Other.t
-  [@@deriving yojson]
+  [@@deriving yojson, sexp, compare]
 
 
   let make key value =
@@ -62,7 +62,7 @@ module Head = struct
     bucket : string;
     key : string;
     tags : Tag.t list;
-  } [@@deriving yojson]
+  } [@@deriving yojson, sexp, compare]
 
   module Frontend = struct
     type outer = t
@@ -83,7 +83,7 @@ type t = {
   key : string;
   body : string;
   tags : Tag.t list;
-} [@@deriving yojson]
+} [@@deriving yojson, sexp, compare]
 
 module Frontend = struct
   type outer = t
