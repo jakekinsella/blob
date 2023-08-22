@@ -109,3 +109,170 @@ let%test_unit "deny all (list)" =
   
   let res = Blob.list "test" "key" context |> Lwt_main.run in
   [%test_eq: (Model.Blob.Head.t list, Error.Database.t) Result.t] res (Error Error.Database.Unauthorized)
+
+
+let user_policy = [Bucket.Policy.Statement.({
+  effect = Bucket.Policy.Effect.Allow;
+  action = Bucket.Policy.Action.All;
+  principal = Bucket.Policy.Principal.UserId "user";
+})]
+
+let%test_unit "user_id = user, deny (create)" =
+  let table = { buckets = Hashtbl.create (module String) } in
+  let context = Blob.Context.({ connection = table; user_id = Some "other" }) in
+  let _ = BucketsMock.create Bucket.({ name = "test"; policy = user_policy }) table |> Lwt_main.run in
+
+  let res = Blob.create Model.Blob.({ bucket = "test"; key = "key"; body = ""; tags = [] }) context |> Lwt_main.run in
+  [%test_eq: (unit, Error.Database.t) Result.t] res (Error Error.Database.Unauthorized)
+
+let%test_unit "user_id = user, deny (delete)" =
+  let table = { buckets = Hashtbl.create (module String) } in
+  let context = Blob.Context.({ connection = table; user_id = Some "other" }) in
+  let _ = BucketsMock.create Bucket.({ name = "test"; policy = user_policy }) table |> Lwt_main.run in
+  
+  let res = Blob.delete "test" "key" context |> Lwt_main.run in
+  [%test_eq: (unit, Error.Database.t) Result.t] res (Error Error.Database.Unauthorized)
+
+let%test_unit "user_id = user, deny (get)" =
+  let table = { buckets = Hashtbl.create (module String) } in
+  let context = Blob.Context.({ connection = table; user_id = Some "other" }) in
+  let _ = BucketsMock.create Bucket.({ name = "test"; policy = user_policy }) table |> Lwt_main.run in
+  
+  let res = Blob.get "test" "key" context |> Lwt_main.run in
+  [%test_eq: (Model.Blob.t, Error.Database.t) Result.t] res (Error Error.Database.Unauthorized)
+
+let%test_unit "user_id = user, deny (list)" =
+  let table = { buckets = Hashtbl.create (module String) } in
+  let context = Blob.Context.({ connection = table; user_id = Some "other" }) in
+  let _ = BucketsMock.create Bucket.({ name = "test"; policy = user_policy }) table |> Lwt_main.run in
+  
+  let res = Blob.list "test" "key" context |> Lwt_main.run in
+  [%test_eq: (Model.Blob.Head.t list, Error.Database.t) Result.t] res (Error Error.Database.Unauthorized)
+
+let%test_unit "user_id = user, allow (create)" =
+  let table = { buckets = Hashtbl.create (module String) } in
+  let context = Blob.Context.({ connection = table; user_id = Some "user" }) in
+  let _ = BucketsMock.create Bucket.({ name = "test"; policy = user_policy }) table |> Lwt_main.run in
+
+  let res = Blob.create Model.Blob.({ bucket = "test"; key = "key"; body = ""; tags = [] }) context |> Lwt_main.run in
+  [%test_eq: (unit, Error.Database.t) Result.t] res (Ok ())
+
+let%test_unit "user_id = user, allow (delete)" =
+  let table = { buckets = Hashtbl.create (module String) } in
+  let context = Blob.Context.({ connection = table; user_id = Some "user" }) in
+  let _ = BucketsMock.create Bucket.({ name = "test"; policy = user_policy }) table |> Lwt_main.run in
+  
+  let res = Blob.delete "test" "key" context |> Lwt_main.run in
+  [%test_eq: (unit, Error.Database.t) Result.t] res (Ok ())
+
+let%test_unit "user_id = user, allow (get)" =
+  let table = { buckets = Hashtbl.create (module String) } in
+  let context = Blob.Context.({ connection = table; user_id = Some "user" }) in
+  let _ = BucketsMock.create Bucket.({ name = "test"; policy = user_policy }) table |> Lwt_main.run in
+  
+  let blob = Model.Blob.({ bucket = "test"; key = "key"; body = ""; tags = [] }) in
+  let _ = Blob.create blob context |> Lwt_main.run in
+  let res = Blob.get "test" "key" context |> Lwt_main.run in
+  [%test_eq: (Model.Blob.t, Error.Database.t) Result.t] res (Ok blob)
+
+let%test_unit "user_id = user, allow (list)" =
+  let table = { buckets = Hashtbl.create (module String) } in
+  let context = Blob.Context.({ connection = table; user_id = Some "user" }) in
+  let _ = BucketsMock.create Bucket.({ name = "test"; policy = user_policy }) table |> Lwt_main.run in
+  
+  let blob = Model.Blob.({ bucket = "test"; key = "key"; body = ""; tags = [] }) in
+  let _ = Blob.create blob context |> Lwt_main.run in
+  let res = Blob.list "test" "ke" context |> Lwt_main.run in
+  [%test_eq: (Model.Blob.Head.t list, Error.Database.t) Result.t] res (Ok [Model.Blob.Head.({ bucket = "test"; key = "key"; tags = [] })])
+
+
+let conflicting = [
+  Bucket.Policy.Statement.({
+    effect = Bucket.Policy.Effect.Allow;
+    action = Bucket.Policy.Action.All;
+    principal = Bucket.Policy.Principal.UserId "user";
+  });
+  Bucket.Policy.Statement.({
+    effect = Bucket.Policy.Effect.Deny;
+    action = Bucket.Policy.Action.All;
+    principal = Bucket.Policy.Principal.UserId "user";
+  })
+]
+
+let%test_unit "conflicting, deny (create)" =
+  let table = { buckets = Hashtbl.create (module String) } in
+  let context = Blob.Context.({ connection = table; user_id = Some "user" }) in
+  let _ = BucketsMock.create Bucket.({ name = "test"; policy = conflicting }) table |> Lwt_main.run in
+
+  let res = Blob.create Model.Blob.({ bucket = "test"; key = "key"; body = ""; tags = [] }) context |> Lwt_main.run in
+  [%test_eq: (unit, Error.Database.t) Result.t] res (Error Error.Database.Unauthorized)
+
+let%test_unit "conflicting, deny (delete)" =
+  let table = { buckets = Hashtbl.create (module String) } in
+  let context = Blob.Context.({ connection = table; user_id = Some "user" }) in
+  let _ = BucketsMock.create Bucket.({ name = "test"; policy = conflicting }) table |> Lwt_main.run in
+  
+  let res = Blob.delete "test" "key" context |> Lwt_main.run in
+  [%test_eq: (unit, Error.Database.t) Result.t] res (Error Error.Database.Unauthorized)
+
+let%test_unit "conflicting, deny (get)" =
+  let table = { buckets = Hashtbl.create (module String) } in
+  let context = Blob.Context.({ connection = table; user_id = Some "user" }) in
+  let _ = BucketsMock.create Bucket.({ name = "test"; policy = conflicting }) table |> Lwt_main.run in
+  
+  let res = Blob.get "test" "key" context |> Lwt_main.run in
+  [%test_eq: (Model.Blob.t, Error.Database.t) Result.t] res (Error Error.Database.Unauthorized)
+
+let%test_unit "conflicting, deny (list)" =
+  let table = { buckets = Hashtbl.create (module String) } in
+  let context = Blob.Context.({ connection = table; user_id = Some "user" }) in
+  let _ = BucketsMock.create Bucket.({ name = "test"; policy = conflicting }) table |> Lwt_main.run in
+  
+  let res = Blob.list "test" "key" context |> Lwt_main.run in
+  [%test_eq: (Model.Blob.Head.t list, Error.Database.t) Result.t] res (Error Error.Database.Unauthorized)
+
+
+let partial_conflicting = [
+  Bucket.Policy.Statement.({
+    effect = Bucket.Policy.Effect.Allow;
+    action = Bucket.Policy.Action.All;
+    principal = Bucket.Policy.Principal.UserId "user";
+  });
+  Bucket.Policy.Statement.({
+    effect = Bucket.Policy.Effect.Deny;
+    action = Bucket.Policy.Action.Write;
+    principal = Bucket.Policy.Principal.UserId "user";
+  })
+]
+
+let%test_unit "partial conflicting, deny (create)" =
+  let table = { buckets = Hashtbl.create (module String) } in
+  let context = Blob.Context.({ connection = table; user_id = Some "user" }) in
+  let _ = BucketsMock.create Bucket.({ name = "test"; policy = partial_conflicting }) table |> Lwt_main.run in
+
+  let res = Blob.create Model.Blob.({ bucket = "test"; key = "key"; body = ""; tags = [] }) context |> Lwt_main.run in
+  [%test_eq: (unit, Error.Database.t) Result.t] res (Error Error.Database.Unauthorized)
+
+let%test_unit "partial conflicting, deny (delete)" =
+  let table = { buckets = Hashtbl.create (module String) } in
+  let context = Blob.Context.({ connection = table; user_id = Some "user" }) in
+  let _ = BucketsMock.create Bucket.({ name = "test"; policy = partial_conflicting }) table |> Lwt_main.run in
+  
+  let res = Blob.delete "test" "key" context |> Lwt_main.run in
+  [%test_eq: (unit, Error.Database.t) Result.t] res (Error Error.Database.Unauthorized)
+
+let%test_unit "partial conflicting, allow (get)" =
+  let table = { buckets = Hashtbl.create (module String) } in
+  let context = Blob.Context.({ connection = table; user_id = Some "user" }) in
+  let _ = BucketsMock.create Bucket.({ name = "test"; policy = partial_conflicting }) table |> Lwt_main.run in
+  
+  let res = Blob.get "test" "key" context |> Lwt_main.run in
+  [%test_eq: (Model.Blob.t, Error.Database.t) Result.t] res (Error Error.Database.NotFound)
+
+let%test_unit "partial conflicting, allow (list)" =
+  let table = { buckets = Hashtbl.create (module String) } in
+  let context = Blob.Context.({ connection = table; user_id = Some "user" }) in
+  let _ = BucketsMock.create Bucket.({ name = "test"; policy = partial_conflicting }) table |> Lwt_main.run in
+  
+  let res = Blob.list "test" "key" context |> Lwt_main.run in
+  [%test_eq: (Model.Blob.Head.t list, Error.Database.t) Result.t] res (Ok [])
