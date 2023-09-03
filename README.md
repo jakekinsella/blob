@@ -1,6 +1,6 @@
 # Blob
 
-Basic blob storage + notes frontend.
+Simple blob storage + notes frontend.
 
 ## Local Development
 
@@ -108,4 +108,4 @@ Deploy the cluster:
 ... wait \~10minutes time (until `sudo kubectl get pods` shows all the containers running) ...  
 
 ## TODO
- - tests
+ - notes ui
