@@ -38,7 +38,7 @@ PGDATABASE=blob
 `cd blob && make start`  
 `cd notes && make start`
   
-Navigate to `http://localhost:3002`  
+Navigate to `http://localhost:8280`  
 
 ## Local Deploy
 Deployed as a Kubernetes cluster.  
