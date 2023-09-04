@@ -5,10 +5,21 @@
    [notes.subs :as subs]
    ))
 
-(defn main-panel []
-  (let [name (re-frame/subscribe [::subs/name])]
-    [:div
-     [:h1
-      {:class (styles/level1)}
-      "Hello from " @name]
-     ]))
+(defn main []
+  [:div
+   [:h1
+    {:class (styles/level1)}
+    "Hello world"]
+   ])
+
+(defn login []
+  [:div "login"])
+
+(def routes
+  [["/"
+    {:name ::main
+     :view main}]
+
+   ["/login"
+    {:name ::login
+     :view login}]])

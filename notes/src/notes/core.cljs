@@ -1,7 +1,11 @@
 (ns notes.core
   (:require
+   [reagent.core :as r]
    [reagent.dom :as rdom]
    [re-frame.core :as re-frame]
+   [reitit.frontend :as rf]
+   [reitit.frontend.easy :as rfe]
+   [reitit.coercion.spec :as rss]
    [notes.events :as events]
    [notes.views :as views]
    [notes.config :as config]
@@ -12,13 +16,26 @@
   (when config/debug?
     (println "dev mode")))
 
+(defonce match (r/atom nil))
+
+(defn root []
+  [:div
+    (if @match
+     (let [view (:view (:data @match))]
+       [view @match]))
+    (println @match)])
+
 (defn ^:dev/after-load mount-root []
   (re-frame/clear-subscription-cache!)
   (let [root-el (.getElementById js/document "app")]
     (rdom/unmount-component-at-node root-el)
-    (rdom/render [views/main-panel] root-el)))
+    (rdom/render [root] root-el)))
 
 (defn init []
   (re-frame/dispatch-sync [::events/initialize-db])
   (dev-setup)
+  (rfe/start!
+    (rf/router views/routes {:data {:coercion rss/coercion}})
+    (fn [m] (reset! match m))
+    {:use-fragment false})
   (mount-root))
