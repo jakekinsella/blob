@@ -8,3 +8,8 @@
  ::initialize-db
  (fn [_ _]
    db/default-db))
+
+(re-frame/reg-event-db
+ ::list-notes
+ (fn [db _]
+   (do (println "TESTEST") db)))

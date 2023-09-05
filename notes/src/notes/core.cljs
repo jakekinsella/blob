@@ -22,8 +22,7 @@
   [:div
     (if @match
      (let [view (:view (:data @match))]
-       [view @match]))
-    (println @match)])
+       [view @match]))])
 
 (defn ^:dev/after-load mount-root []
   (re-frame/clear-subscription-cache!)
