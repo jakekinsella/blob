@@ -8,7 +8,7 @@
 
 (defn main []
   (do
-    (re-frame.core/dispatch  [::events/list-notes])
+    (re-frame/dispatch  [::events/list-notes])
     (fn []
       (let [notes (re-frame/subscribe [::subs/notes])]
       [:div
