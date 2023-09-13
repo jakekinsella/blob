@@ -2,12 +2,8 @@
   (:require
    [re-frame.core :as re-frame]
    [notes.db :as db]
+   [notes.api :as api]
    [central :as central]))
-
-(defn json [obj] (js/JSON.stringify (clj->js obj)))
-
-(defn request [url options]
-  (central/Api.Blob.request url (clj->js options)))
 
 (re-frame/reg-event-db
  ::initialize-db
@@ -15,13 +11,27 @@
    db/default-db))
 
 (re-frame/reg-event-db
- ::list-notes-complete
+ ::get-user-complete
+ (fn [db user]
+   (assoc db :user user)))
+
+(re-frame/reg-event-db
+ ::get-user
  (fn [db _]
    (do
-     (request "/blobs/list" {:method "POST" :body (json {:bucket "jake.kinsella@gmail.com" :prefix "notes/"})})
+     (.then (api/get-user)
+       #(re-frame/dispatch [::get-user-complete %]))
      db)))
+
+(re-frame/reg-event-db
+ ::list-notes-complete
+ (fn [db [_ notes]]
+   (assoc db :notes notes)))
 
 (re-frame/reg-event-db
  ::list-notes
  (fn [db _]
-   (do (re-frame/dispatch [::list-notes-complete]) db)))
+   (do
+     (.then (api/list-notes "jake.kinsella@gmail.com")
+       #(re-frame/dispatch [::list-notes-complete %]))
+     db)))
