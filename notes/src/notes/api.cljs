@@ -10,18 +10,18 @@
   (->
     (central/Api.Blob.request url (clj->js options))
     (.then (fn [res] (.json res)))
-    (.then #(js->clj %))))
+    (.then #(js->clj % :keywordize-keys true))))
 
 (defn central-request [url options]
   (->
     (central/Api.Central.request url (clj->js options))
     (.then (fn [res] (.json res)))
-    (.then #(js->clj %))))
+    (.then #(js->clj % :keywordize-keys true))))
 
 (defn get-user []
   (->
     (central-request "/users/validate" {:method "POST" :body (json {:token (token)})})
-    (.then #(:users %))))
+    (.then #(:user %))))
 
 (defn list-notes [email]
   (->

@@ -35,7 +35,7 @@
  (fn [db _]
    (do
      (if (nil? (:user db))
-       (re-frame/dispatch [::get-user ::list-notes-complete])
-       (.then (api/list-notes (:email db))
+       (re-frame/dispatch [::get-user ::list-notes])
+       (.then (api/list-notes (:email (:user db)))
          #(re-frame/dispatch [::list-notes-complete %])))
      db)))
