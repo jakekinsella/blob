@@ -4,7 +4,7 @@
 
 (defn json [obj] (js/JSON.stringify (clj->js obj)))
 
-(defn token [] (central/Api.Users.token))
+(defn token [] (central/Users.token))
 
 (defn request [url options]
   (->
@@ -13,10 +13,15 @@
     (.then #(js->clj %))))
 
 (defn central-request [url options]
-  (central/Api.Blob.request url (clj->js options)))
+  (->
+    (central/Api.Central.request url (clj->js options))
+    (.then (fn [res] (.json res)))
+    (.then #(js->clj %))))
 
 (defn get-user []
-  (central-request "/users/validate" {:method "POST" :body (json {:token (token)})}))
+  (->
+    (central-request "/users/validate" {:method "POST" :body (json {:token (token)})})
+    (.then #(:users %))))
 
 (defn list-notes [email]
   (->

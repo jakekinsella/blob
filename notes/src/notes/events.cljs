@@ -12,15 +12,17 @@
 
 (re-frame/reg-event-db
  ::get-user-complete
- (fn [db user]
-   (assoc db :user user)))
+ (fn [db [_ user after]]
+   (do
+     (re-frame/dispatch [after])
+     (assoc db :user user))))
 
 (re-frame/reg-event-db
  ::get-user
- (fn [db _]
+ (fn [db [_ after]]
    (do
      (.then (api/get-user)
-       #(re-frame/dispatch [::get-user-complete %]))
+       #(re-frame/dispatch [::get-user-complete % after]))
      db)))
 
 (re-frame/reg-event-db
@@ -32,6 +34,8 @@
  ::list-notes
  (fn [db _]
    (do
-     (.then (api/list-notes "jake.kinsella@gmail.com")
-       #(re-frame/dispatch [::list-notes-complete %]))
+     (if (nil? (:user db))
+       (re-frame/dispatch [::get-user ::list-notes-complete])
+       (.then (api/list-notes (:email db))
+         #(re-frame/dispatch [::list-notes-complete %])))
      db)))

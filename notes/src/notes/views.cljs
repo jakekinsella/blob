@@ -13,7 +13,7 @@
       (let [notes (re-frame/subscribe [::subs/notes])]
       [:div
         [:div "Hello world"]
-        (map (fn [note] [:div "test"])) @notes]))))
+        (map (fn [note] [:div "test"]) @notes)]))))
 
 (def to_login (str central/Constants.central.root "/login?redirect=" (js/encodeURIComponent central/Constants.notes.root)))
 (defn login []
