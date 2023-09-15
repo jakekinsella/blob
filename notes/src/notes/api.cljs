@@ -1,6 +1,7 @@
 (ns notes.api
   (:require
-   [central :as central]))
+    [clojure.string :as string]
+    [central :as central]))
 
 (defn json [obj] (js/JSON.stringify (clj->js obj)))
 
@@ -23,7 +24,11 @@
     (central-request "/users/validate" {:method "POST" :body (json {:token (token)})})
     (.then #(:user %))))
 
+(defn note-apply [note]
+  {:title (string/replace (:key note) #"^notes/" "") :body (:body note)})
+
 (defn list-notes [email]
   (->
     (request "/blobs/list" {:method "POST" :body (json {:bucket email :prefix "notes/"})})
-    (.then #(:blobs %))))
+    (.then #(:blobs %))
+    (.then #(map note-apply %))))

@@ -1,9 +1,9 @@
 (ns notes.events
   (:require
-   [re-frame.core :as re-frame]
-   [notes.db :as db]
-   [notes.api :as api]
-   [central :as central]))
+    [re-frame.core :as re-frame]
+    [notes.db :as db]
+    [notes.api :as api]
+    [central :as central]))
 
 (defn reg-event-with-user [event fun]
   (re-frame/reg-event-db

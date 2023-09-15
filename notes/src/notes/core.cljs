@@ -1,15 +1,14 @@
 (ns notes.core
   (:require
-   [reagent.core :as r]
-   [reagent.dom :as rdom]
-   [re-frame.core :as re-frame]
-   [reitit.frontend :as rf]
-   [reitit.frontend.easy :as rfe]
-   [reitit.coercion.spec :as rss]
-   [notes.events :as events]
-   [notes.views :as views]
-   [notes.config :as config]
-   ))
+    [reagent.core :as r]
+    [reagent.dom :as rdom]
+    [re-frame.core :as re-frame]
+    [reitit.frontend :as rf]
+    [reitit.frontend.easy :as rfe]
+    [reitit.coercion.spec :as rss]
+    [notes.events :as events]
+    [notes.views :as views]
+    [notes.config :as config]))
 
 
 (defn dev-setup []
