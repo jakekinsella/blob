@@ -5,6 +5,14 @@
    [notes.api :as api]
    [central :as central]))
 
+(defn reg-event-with-user [event fun]
+  (re-frame/reg-event-db
+    event
+    (fn [db x]
+      (if (nil? (:user db))
+        (do (re-frame/dispatch [::get-user event]) db)
+        (fun db x)))))
+
 (re-frame/reg-event-db
  ::initialize-db
  (fn [_ _]
@@ -14,7 +22,7 @@
  ::get-user-complete
  (fn [db [_ user after]]
    (do
-     (re-frame/dispatch [after])
+     (if (not (nil? user)) (re-frame/dispatch [after]))
      (assoc db :user user))))
 
 (re-frame/reg-event-db
@@ -30,12 +38,10 @@
  (fn [db [_ notes]]
    (assoc db :notes notes)))
 
-(re-frame/reg-event-db
+(reg-event-with-user
  ::list-notes
  (fn [db _]
    (do
-     (if (nil? (:user db))
-       (re-frame/dispatch [::get-user ::list-notes])
-       (.then (api/list-notes (:email (:user db)))
-         #(re-frame/dispatch [::list-notes-complete %])))
+     (.then (api/list-notes (:email (:user db)))
+         #(re-frame/dispatch [::list-notes-complete %]))
      db)))
