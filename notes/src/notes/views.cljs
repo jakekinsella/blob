@@ -6,16 +6,22 @@
     [notes.events :as events]
     [central :as central]))
 
-(defn sidebar [notes] [:div "sidebar" (map (fn [note] [:p (str "Note: " (:title note))]) notes)])
+(defn sidebar []
+  (do
+    (re-frame/dispatch [::events/list-notes])
+    (let [notes @(re-frame/subscribe [::subs/notes])]
+      [:div "sidebar" (map (fn [note] [:p {:key (:title note)} (str "Note: " (:title note))]) notes)])))
+
 (defn menu [] [:div "menu"])
-(defn editor [] [:div "editor"])
+
+(defn editor []
+  (do
+    (re-frame/dispatch [::events/select-note "Test note"])
+    (let [selected @(re-frame/subscribe [::subs/selected])]
+      [:div "editor" [:p (:title selected)]])))
 
 (defn main []
-  (do
-    (re-frame/dispatch  [::events/list-notes])
-    (fn []
-      (let [notes (re-frame/subscribe [::subs/notes])]
-      [:div (sidebar @notes) (menu) (editor)]))))
+  [:div (sidebar) (menu) (editor)])
 
 (def to_login (str central/Constants.central.root "/login?redirect=" (js/encodeURIComponent central/Constants.notes.root)))
 (defn login []

@@ -6,3 +6,8 @@
  ::notes
  (fn [db]
    (:notes db)))
+
+(re-frame/reg-sub
+ ::selected
+ (fn [db]
+   (:selected db)))

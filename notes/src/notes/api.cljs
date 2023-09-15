@@ -32,3 +32,8 @@
     (request "/blobs/list" {:method "POST" :body (json {:bucket email :prefix "notes/"})})
     (.then #(:blobs %))
     (.then #(map note-apply %))))
+
+(defn get-note [email title]
+  (->
+    (request "/blobs/get" {:method "POST" :body (json {:bucket email :key (str "notes/" title)})})
+    (.then #(note-apply %))))

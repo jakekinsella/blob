@@ -10,19 +10,21 @@
     event
     (fn [db x]
       (if (nil? (:user db))
-        (do (re-frame/dispatch [::get-user event]) db)
+        (do (re-frame/dispatch [::get-user x]) db)
         (fun db x)))))
+
 
 (re-frame/reg-event-db
  ::initialize-db
  (fn [_ _]
    db/default-db))
 
+
 (re-frame/reg-event-db
  ::get-user-complete
  (fn [db [_ user after]]
    (do
-     (if (not (nil? user)) (re-frame/dispatch [after]))
+     (if (not (nil? user)) (re-frame/dispatch after))
      (assoc db :user user))))
 
 (re-frame/reg-event-db
@@ -32,6 +34,7 @@
      (.then (api/get-user)
        #(re-frame/dispatch [::get-user-complete % after]))
      db)))
+
 
 (re-frame/reg-event-db
  ::list-notes-complete
@@ -45,3 +48,19 @@
      (.then (api/list-notes (:email (:user db)))
          #(re-frame/dispatch [::list-notes-complete %]))
      db)))
+
+
+(re-frame/reg-event-db
+ ::select-note-complete
+ (fn [db [_ note]]
+   (assoc db :selected note)))
+
+(reg-event-with-user
+ ::select-note
+ (fn [db [_ title]]
+   (do
+     (->
+       (api/get-note (:email (:user db)) title)
+       (.then #(re-frame/dispatch [::select-note-complete %])))
+     db)))
+
