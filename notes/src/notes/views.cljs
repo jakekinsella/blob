@@ -7,7 +7,11 @@
     [notes.components.sidebar :as sidebar]
     [notes.components.menu :as menu]
     [notes.components.editor :as editor]
-    [central :as central]))
+    [central :as central]
+    [spade.core :refer [defclass]]))
+
+(defclass root-style [] {:display "flex" :width "100%" :height "100%"})
+(defn root [children] (into [:div {:class (root-style)}] children))
 
 (defn main []
   (do
@@ -16,7 +20,7 @@
     (fn []
       (let [notes @(re-frame/subscribe [::subs/notes])
             selected @(re-frame/subscribe [::subs/selected])]
-        [:div (sidebar/build notes) (menu/build selected) (editor/build selected)]))))
+        (root [(sidebar/build notes) (menu/build selected) (editor/build selected)])))))
 
 (def to_login (str central/Constants.central.root "/login?redirect=" (js/encodeURIComponent central/Constants.notes.root)))
 (defn login []
