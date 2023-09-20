@@ -24,9 +24,18 @@
 (defn container [children]
   (into [:div {:class (container-style)}] children))
 
-(defclass header-style [] {:padding-left "20px" :padding-top "5px" :padding-bottom "5px" :font-size "18px"})
-(defn header [children]
-  (into [:div {:class (header-style)}] children))
+(defclass header-style []
+  {:padding-left "20px"
+   :padding-top "5px"
+   :padding-bottom "5px"
+   :text-decoration "none"
+   :font-size "18px"
+   :color central/Constants.colors.black}
+  [:&:hover {:text-decoration "none" :color "black"}]
+  [:&:visited {:text-decoration "none"}]
+  [:&:active {:text-decoration "none"}])
+(defn header [attrs children]
+  (into [:a (merge-with + attrs {:class (header-style)})] children))
 
 (defclass spacer-style [] {:width "100%" :height "8px"})
 (defn spacer []
@@ -47,6 +56,7 @@
     children))
 
 (defn build [notes]
-  (pane [(pane-inner [(container [(header "Notes")
+  (do (println notes)
+  (pane [(pane-inner [(container [(header {:href "/"} "Notes")
                                 (spacer)
-                                [:div (item {:href "#"} ["test"])]])])]))
+                                [:div (map (fn [note] (item {:href (js/encodeURIComponent (:title note))} [(:title note)])) notes)]])])])))
