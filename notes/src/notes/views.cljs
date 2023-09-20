@@ -19,17 +19,22 @@
 (defclass spacer-style [] {:height "50px"})
 (defn spacer [] [:div {:class (spacer-style)}])
 
-(defn index []
-  (do
-    (re-frame/dispatch [::events/list-notes])
-    (re-frame/dispatch [::events/select-note "Test note"])
-    (fn []
-      (let [notes @(re-frame/subscribe [::subs/notes])
-            selected @(re-frame/subscribe [::subs/selected])]
-        (root [(sidebar/build notes)
-               (main [(menu/build selected) 
-                      (spacer)
-                      (editor/build selected)])])))))
+(defn index [match]
+  (defn render-main [selected]
+    (if (nil? selected)
+      [:div]
+      (main [(menu/build selected) 
+             (spacer)
+             (editor/build selected)])))
+  (let [title (:title (:path (:parameters match)))]
+    (do
+      (re-frame/dispatch [::events/list-notes])
+      (re-frame/dispatch [::events/select-note title])
+      (fn []
+        (let [notes @(re-frame/subscribe [::subs/notes])
+              selected @(re-frame/subscribe [::subs/selected])]
+          (root [(sidebar/build notes)
+                 (render-main selected)]))))))
 
 (def to_login (str central/Constants.central.root "/login?redirect=" (js/encodeURIComponent central/Constants.notes.root)))
 (defn login []
@@ -42,4 +47,9 @@
 
    ["/login"
     {:name ::login
-     :view login}]])
+     :view login}]
+
+   ["/notes/:title"
+    {:name ::notes
+     :view index
+     :parameters {:path {:title string?}}}]])

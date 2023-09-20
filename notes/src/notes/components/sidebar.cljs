@@ -55,8 +55,13 @@
   (into [:a (merge-with + attrs {:class (item-style)})]
     children))
 
+; TODO: JK watch URI change to change selected
+; TODO: JK "Add note" link
 (defn build [notes]
-  (do (println notes)
+  (defn render-item [note]
+    (item {:href (str "/notes/" (js/encodeURIComponent (:title note)))
+           :key (:title note)}
+          [(:title note)]))
   (pane [(pane-inner [(container [(header {:href "/"} "Notes")
                                 (spacer)
-                                [:div (map (fn [note] (item {:href (js/encodeURIComponent (:title note))} [(:title note)])) notes)]])])])))
+                                [:div (map render-item notes)]])])]))
