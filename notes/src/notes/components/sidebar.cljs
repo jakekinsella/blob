@@ -55,7 +55,6 @@
   (into [:a (merge-with + attrs {:class (item-style)})]
     children))
 
-; TODO: JK watch URI change to change selected
 ; TODO: JK "Add note" link
 (defn build [notes]
   (defn render-item [note]

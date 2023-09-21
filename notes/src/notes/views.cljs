@@ -26,15 +26,19 @@
       (main [(menu/build selected) 
              (spacer)
              (editor/build selected)])))
-  (let [title (:title (:path (:parameters match)))]
-    (do
-      (re-frame/dispatch [::events/list-notes])
-      (re-frame/dispatch [::events/select-note title])
-      (fn []
-        (let [notes @(re-frame/subscribe [::subs/notes])
+  (defn dispatch-selected [title selected]
+    (if (nil? title)
+        (if (not (nil? selected))
+            (re-frame/dispatch [::events/select-note-clear]))
+        (if (not (= title (:title selected))) (re-frame/dispatch [::events/select-note title]))))
+  (do (re-frame/dispatch [::events/list-notes])
+      (fn [match]
+        (let [title (:title (:path (:parameters match)))
+              notes @(re-frame/subscribe [::subs/notes])
               selected @(re-frame/subscribe [::subs/selected])]
-          (root [(sidebar/build notes)
-                 (render-main selected)]))))))
+          (do (dispatch-selected title selected)
+              (root [(sidebar/build notes)
+                     (render-main selected)]))))))
 
 (def to_login (str central/Constants.central.root "/login?redirect=" (js/encodeURIComponent central/Constants.notes.root)))
 (defn login []

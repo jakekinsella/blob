@@ -51,6 +51,11 @@
 
 
 (re-frame/reg-event-db
+ ::select-note-clear
+ (fn [db [_ note]]
+   (assoc db :selected nil)))
+
+(re-frame/reg-event-db
  ::select-note-complete
  (fn [db [_ note]]
    (assoc db :selected note)))
