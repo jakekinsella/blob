@@ -1,4 +1,7 @@
 (ns notes.db)
 
 (def default-db
-  {:notes [] :user nil :selected nil})
+  {:user nil
+   :notes []
+   :selected nil
+   :dialog nil})

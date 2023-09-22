@@ -1,6 +1,7 @@
 (ns notes.components.sidebar
   (:require
     [re-frame.core :as re-frame]
+    [notes.events :as events]
     [spade.core :refer [defclass]]
     [central :as central]))
 
@@ -55,12 +56,17 @@
   (into [:a (merge-with + attrs {:class (item-style)})]
     children))
 
-; TODO: JK "Add note" link
 (defn build [notes]
   (defn render-item [note]
     (item {:href (str "/notes/" (js/encodeURIComponent (:title note)))
            :key (:title note)}
           [(:title note)]))
-  (pane [(pane-inner [(container [(header {:href "/"} "Notes")
-                                (spacer)
-                                [:div (map render-item notes)]])])]))
+  (defn render-add-item []
+    (item {:href "#" :on-click (fn [event] (do (.stopPropagation event) (re-frame/dispatch [::events/dialog-open {}])))} "+ Add note"))
+
+  (pane
+    [(pane-inner
+      [(container
+        [(header {:href "/"} "Notes")
+         (spacer)
+         [:div (render-add-item) (spacer) (map render-item notes)]])])]))

@@ -52,7 +52,7 @@
 
 (re-frame/reg-event-db
  ::select-note-clear
- (fn [db [_ note]]
+ (fn [db _]
    (assoc db :selected nil)))
 
 (re-frame/reg-event-db
@@ -69,3 +69,13 @@
        (.then #(re-frame/dispatch [::select-note-complete %])))
      db)))
 
+
+(re-frame/reg-event-db
+ ::dialog-open
+ (fn [db [_ dialog]]
+   (assoc db :dialog dialog)))
+
+(re-frame/reg-event-db
+ ::dialog-close
+ (fn [db _]
+   (assoc db :dialog nil)))

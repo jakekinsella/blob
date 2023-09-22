@@ -11,3 +11,8 @@
  ::selected
  (fn [db]
    (:selected db)))
+
+(re-frame/reg-sub
+ ::dialog
+ (fn [db]
+   (:dialog db)))
