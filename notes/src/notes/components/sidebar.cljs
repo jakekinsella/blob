@@ -62,7 +62,13 @@
            :key (:title note)}
           [(:title note)]))
   (defn render-add-item []
-    (item {:href "#" :on-click (fn [event] (do (.stopPropagation event) (re-frame/dispatch [::events/dialog-open {}])))} "+ Add note"))
+    (let [dialog {:title "Add Note"
+                  :label "Title"
+                  :submit "Save"
+                  :on-submit (fn [event] (println "TEST"))}]
+      (item {:href "#" 
+             :on-click (fn [event] 
+                         (do (.stopPropagation event) (re-frame/dispatch [::events/dialog-open dialog])))} "+ Add note")))
 
   (pane
     [(pane-inner
