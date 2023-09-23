@@ -65,7 +65,7 @@
     (let [dialog {:title "Add Note"
                   :label "Title"
                   :submit "Save"
-                  :on-submit (fn [event] (println "TEST"))}]
+                  :on-submit (fn [value] (re-frame/dispatch [::events/save-note value "" [::events/dialog-close]]))}]
       (item {:href "#" 
              :on-click (fn [event] 
                          (do (.stopPropagation event) (re-frame/dispatch [::events/dialog-open dialog])))} "+ Add note")))

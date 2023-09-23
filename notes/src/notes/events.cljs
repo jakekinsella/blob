@@ -21,6 +21,12 @@
 
 
 (re-frame/reg-event-db
+ ::set-error
+ (fn [db [_ error]]
+   (assoc db :error error)))
+
+
+(re-frame/reg-event-db
  ::get-user-complete
  (fn [db [_ user after]]
    (do
@@ -71,6 +77,25 @@
 
 
 (re-frame/reg-event-db
+ ::save-note-complete
+ (fn [db [_ after]]
+   (do
+     (re-frame/dispatch [::list-notes])
+     (re-frame/dispatch after)
+     db)))
+
+(reg-event-with-user
+ ::save-note
+ (fn [db [_ title body after]]
+   (do
+     (->
+       (api/create-note (:email (:user db)) title "")
+       (.then #(re-frame/dispatch [::save-note-complete after]))
+       (.catch #(re-frame/dispatch [::set-error "Invalid title"])))
+     db)))
+
+
+(re-frame/reg-event-db
  ::dialog-open
  (fn [db [_ dialog]]
    (assoc db :dialog dialog)))
@@ -78,4 +103,4 @@
 (re-frame/reg-event-db
  ::dialog-close
  (fn [db _]
-   (assoc db :dialog nil)))
+   (assoc db :dialog nil :error nil)))

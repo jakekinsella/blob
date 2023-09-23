@@ -3,6 +3,7 @@
     [reagent.core :as r]
     [re-frame.core :as re-frame]
     [spade.core :refer [defclass]]
+    [notes.events :as events]
     [central :as central]))
 
 (defclass floating-style []
@@ -76,18 +77,22 @@
   [:&:active {:background-color central/Constants.colors.whiteActive}])
 (defn submit [child] [:button {:class (submit-style)} child])
 
-(defn build [dialog]
+(def value (r/atom ""))
+(defn build [dialog error]
   (if (nil? dialog)
-      ()
-      (floating
-        [[:div
-          {:on-click (fn [event] (.stopPropagation event))}
-          (card [(title (:title dialog))
-                 [:form
-                   {:on-submit (:on-submit dialog)}
-                   (label (:label dialog))
-                   (spacer)
-                   (textbox {}) ; TODO: JK onChange/value
-                   (error-label (:error dialog))
-                   (submit (:submit dialog))
-                   [:input {:type "submit" :style {:display "none"}}]]])]])))
+      (do (reset! value "") ())
+      (let [on-submit (fn [event]
+                          (.preventDefault event)
+                          ((:on-submit dialog) @value))]
+        (floating
+          [[:div
+            {:on-click (fn [event] (.stopPropagation event))}
+            (card [(title (:title dialog))
+                   [:form
+                     {:on-submit on-submit}
+                     (label (:label dialog))
+                     (spacer)
+                     (textbox {:type "text" :value @value :on-change #(reset! value (-> % .-target .-value))})
+                     (error-label error)
+                     (submit (:submit dialog))
+                     [:input {:type "submit" :style {:display "none"}}]]])]]))))

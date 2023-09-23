@@ -10,6 +10,7 @@
 (defn request [url options]
   (->
     (central/Api.Blob.request url (clj->js options))
+    (.then (fn [res] (if (= (.-status res) 200) res (js/reject res))))
     (.then (fn [res] (.json res)))
     (.then #(js->clj % :keywordize-keys true))))
 
@@ -37,3 +38,9 @@
   (->
     (request "/blobs/get" {:method "POST" :body (json {:bucket email :key (str "notes/" title)})})
     (.then #(note-apply %))))
+
+(defn create-note [email title body]
+  (request "/blobs/create" {:method "POST" :body (json {:bucket email
+                                                        :key (str "notes/" title)
+                                                        :body body
+                                                        :tags []})}))

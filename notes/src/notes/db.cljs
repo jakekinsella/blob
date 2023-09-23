@@ -4,4 +4,5 @@
   {:user nil
    :notes []
    :selected nil
-   :dialog nil})
+   :dialog nil
+   :error nil})

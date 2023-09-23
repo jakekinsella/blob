@@ -16,3 +16,8 @@
  ::dialog
  (fn [db]
    (:dialog db)))
+
+(re-frame/reg-sub
+ ::error
+ (fn [db]
+   (:error db)))
