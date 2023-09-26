@@ -2,7 +2,9 @@
   (:require
     [re-frame.core :as re-frame]
     [spade.core :refer [defclass]]
-    [central :as central]))
+    [central :as central]
+    [notes.routes :as routes]
+    [notes.events :as events]))
 
 (defclass pane-style []
   {:position "fixed"
@@ -21,6 +23,15 @@
 (defclass title-style [] {:font-size "20px" :color central/Constants.colors.black})
 (defn title [children] (into [:div {:class (title-style)}] children))
 
-; TODO: JK delete button
+(defclass more-style [] {:padding-top "5px" :padding-right "290px"})
+(defn more [child] [:div {:class (more-style)} child])
+
+(defclass delete-style []
+  {:cursor "pointer"
+   :color central/Constants.colors.black}
+  [:&:hover {:color central/Constants.colors.red}])
+(defn delete [attrs child] [:div (merge-with + attrs {:class (delete-style)}) child])
+
 (defn build [selected]
-  (pane [(title [(:title selected)])]))
+  (pane [(title [(:title selected)])
+         (more (delete {:on-click (fn [] (re-frame/dispatch [::events/delete-note (:title selected) [::events/navigate ::routes/index]]))} [:> central/Icon {:icon "delete" :size "1.25em"}]))]))

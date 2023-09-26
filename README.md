@@ -109,6 +109,4 @@ Deploy the cluster:
 
 ## TODO
  - notes ui
-   - add note
-   - delete note
    - edit note

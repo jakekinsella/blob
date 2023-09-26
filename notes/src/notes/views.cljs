@@ -2,6 +2,7 @@
   (:require
     [re-frame.core :as re-frame]
     [react :as react]
+    [notes.routes :as routes]
     [notes.styles :as styles]
     [notes.subs :as subs]
     [notes.events :as events]
@@ -61,14 +62,14 @@
 
 (def routes
   [["/"
-    {:name ::index
+    {:name ::routes/index
      :view index}]
 
    ["/login"
-    {:name ::login
+    {:name ::routes/login
      :view login}]
 
    ["/notes/:title"
-    {:name ::notes
+    {:name ::routes/notes
      :view index
      :parameters {:path {:title string?}}}]])

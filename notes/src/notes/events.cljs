@@ -1,6 +1,7 @@
 (ns notes.events
   (:require
     [re-frame.core :as re-frame]
+    [reitit.frontend.easy :as rfe]
     [notes.db :as db]
     [notes.api :as api]
     [central :as central]))
@@ -96,6 +97,24 @@
 
 
 (re-frame/reg-event-db
+ ::delete-note-complete
+ (fn [db [_ after]]
+   (do
+     (re-frame/dispatch [::list-notes])
+     (re-frame/dispatch after)
+     db)))
+
+(reg-event-with-user
+ ::delete-note
+ (fn [db [_ title after]]
+   (do
+     (->
+       (api/delete-note (:email (:user db)) title)
+       (.then #(re-frame/dispatch [::delete-note-complete after])))
+     db)))
+
+
+(re-frame/reg-event-db
  ::dialog-open
  (fn [db [_ dialog]]
    (assoc db :dialog dialog)))
@@ -104,3 +123,9 @@
  ::dialog-close
  (fn [db _]
    (assoc db :dialog nil :error nil)))
+
+(re-frame/reg-event-db
+ ::navigate
+ (fn [db [_ to]]
+   (do (rfe/push-state to) db)))
+

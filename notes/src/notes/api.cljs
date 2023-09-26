@@ -44,3 +44,5 @@
                                                         :key (str "notes/" title)
                                                         :body body
                                                         :tags []})}))
+(defn delete-note [email title]
+  (request "/blobs/delete" {:method "POST" :body (json {:bucket email :key (str "notes/" title)})}))
