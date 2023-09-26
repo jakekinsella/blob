@@ -11,12 +11,16 @@
     [notes.components.editor :as editor]
     [notes.components.dialog :as dialog]
     [central :as central]
-    [spade.core :refer [defclass]]))
+    [spade.core :refer [defclass defglobal]]))
+
+(defglobal global-styles
+  [:#app {:height "100%"}]
+  [:#app>div {:height "100%"}])
 
 (defclass root-style [] {:display "flex" :width "100%" :height "100%"})
 (defn root [children] (into [:div {:class (root-style)}] children))
 
-(defclass main-style [] {:width "100%"})
+(defclass main-style [] {:width "100%" :height "100%"})
 (defn main [children] (into [:div {:class (main-style)}] children))
 
 (defclass spacer-style [] {:height "50px"})
