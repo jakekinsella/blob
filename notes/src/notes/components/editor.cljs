@@ -2,6 +2,7 @@
   (:require
     [reagent.core :as r]
     [re-frame.core :as re-frame]
+    [react :as react]
     [spade.core :refer [defclass]]
     [central :as central]
     [notes.events :as events]))
@@ -20,11 +21,15 @@
 (defn textbox [attrs]
   [:textarea (merge-with + {:class (textbox-style) :required true} attrs)])
 
-(def title (r/atom ""))
-(def body (r/atom ""))
+(defonce title (r/atom ""))
+(defonce body (r/atom ""))
+(defonce touched (r/atom false))
+
 (defn build [selected]
   (let [sync (fn []
-    (if (not (= @title (:title selected))) (do (reset! title (:title selected)) (reset! body (:body selected)))))]
+               (if (not (= @title (:title selected))) (do (reset! title (:title selected)) (reset! body (:body selected)))))
+        save (fn [] (if @touched (do (reset! touched false) (re-frame/dispatch [::events/save-note @title @body]))))]
     (do
+      (react/useEffect (fn [] (js/setInterval save 3000) (fn [] (js/clearInterval save))))
       (sync)
-      (textbox {:value @body :on-change #(reset! body (-> % .-target .-value))}))))
+      (textbox {:value @body :on-change (fn [event] (do (reset! body (-> event .-target .-value)) (reset! touched true)))}))))

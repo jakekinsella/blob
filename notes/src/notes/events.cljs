@@ -82,7 +82,7 @@
  (fn [db [_ after]]
    (do
      (re-frame/dispatch [::list-notes])
-     (re-frame/dispatch after)
+     (if (not (nil? after)) (re-frame/dispatch after))
      db)))
 
 (reg-event-with-user
@@ -90,7 +90,7 @@
  (fn [db [_ title body after]]
    (do
      (->
-       (api/create-note (:email (:user db)) title "")
+       (api/create-note (:email (:user db)) title body)
        (.then #(re-frame/dispatch [::save-note-complete after]))
        (.catch #(re-frame/dispatch [::set-error "Invalid title"])))
      db)))

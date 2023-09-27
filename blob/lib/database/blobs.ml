@@ -59,6 +59,8 @@ module BlobsTable = struct
     execute {sql|
       INSERT INTO blobs (bucket, key, body, tags)
       VALUES (%string{bucket}, %string{key}, %string{body}, %string{tags})
+      ON CONFLICT (bucket, key)
+      DO UPDATE SET key=excluded.key, body=excluded.body, tags=excluded.tags
     |sql}
   ]
 
