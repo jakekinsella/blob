@@ -21,3 +21,8 @@
  ::error
  (fn [db]
    (:error db)))
+
+(re-frame/reg-sub
+ ::sidebar-open?
+ (fn [db]
+   (:sidebar-open? db)))

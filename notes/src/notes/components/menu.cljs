@@ -8,11 +8,9 @@
     [notes.subs :as subs]))
 
 (defclass pane-style []
-  {:position "fixed"
-   :display "flex"
+  {:display "flex"
    :align-items "center"
    :background-color "white"
-   :width "100%"
    :height "50px"
    :padding-left "10px"
    :padding-right "10px"
@@ -24,7 +22,7 @@
 (defclass title-style [] {:font-size "20px" :color central/Constants.colors.black})
 (defn title [children] (into [:div {:class (title-style)}] children))
 
-(defclass more-style [] {:padding-top "5px" :padding-right "290px"})
+(defclass more-style [] {:padding-top "5px" :padding-right "30px" :margin-left "auto" :margin-right "0"})
 (defn more [child] [:div {:class (more-style)} child])
 
 (defclass delete-style []
@@ -33,7 +31,18 @@
   [:&:hover {:color central/Constants.colors.red}])
 (defn delete [attrs child] [:div (merge-with + attrs {:class (delete-style)}) child])
 
+(defclass open-style []
+  {:padding-top "3px"
+   :padding-right "8px"
+   :cursor "pointer"}
+   [:&:hover {:color "black"}]
+   [:&:active {:color "black"}])
+(defn open [attrs children] (into [:div (merge-with + attrs {:class (open-style)})] children))
+
 (defn build []
-  (let [selected @(re-frame/subscribe [::subs/selected])]
-    (pane [(title [(:title selected)])
-           (more (delete {:on-click (fn [] (re-frame/dispatch [::events/delete-note (:title selected) [::events/navigate ::routes/index]]))} [:> central/Icon {:icon "delete" :size "1.25em"}]))])))
+  (let [selected @(re-frame/subscribe [::subs/selected])
+        sidebar-open? @(re-frame/subscribe [::subs/sidebar-open?])]
+    
+    (pane [(if (not sidebar-open?) (open {:on-click (fn [] (re-frame/dispatch [::events/sidebar-open]))} [[:> central/Icon {:icon "menu" :size "1.25em"}]]))
+           (title [(:title selected)])
+           (if (nil? selected) [:div] (more (delete {:on-click (fn [] (re-frame/dispatch [::events/delete-note (:title selected) [::events/navigate ::routes/index]]))} [:> central/Icon {:icon "delete" :size "1.25em"}])))])))

@@ -5,4 +5,5 @@
    :notes {:loaded false :notes []}
    :selected nil
    :dialog nil
-   :error nil})
+   :error nil
+   :sidebar-open? true})

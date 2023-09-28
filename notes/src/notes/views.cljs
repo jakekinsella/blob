@@ -23,16 +23,10 @@
 (defclass main-style [] {:width "100%" :height "100%"})
 (defn main [children] (into [:div {:class (main-style)}] children))
 
-(defclass spacer-style [] {:height "50px"})
-(defn spacer [] [:div {:class (spacer-style)}])
-
 (defn index [match]
   (defn render-main [selected]
-    (if (nil? selected)
-      [:div]
-      [main [[menu/build]
-             [spacer]
-             [editor/build]]]))
+    [main [[menu/build]
+           (if (nil? selected) [:div] [editor/build])]])
   (defn dispatch-selected [title selected]
     (if (nil? title)
         (if (not (nil? selected))
@@ -50,11 +44,10 @@
                                        (fn [] (js/document.removeEventListener "keydown" listener))))))
             (react/useEffect (fn []
                                  (let [listener (fn [] (re-frame/dispatch [::events/dialog-close]))]
-                                   (do (println "HMMMMM") (js/document.addEventListener "click" listener)
+                                   (do (js/document.addEventListener "click" listener)
                                        (fn [] (js/document.removeEventListener "click" listener))))))
 
-            [root [[sidebar/build]
-                   [render-main selected]
+            [root [[sidebar/build [[render-main selected]]]
                    [dialog/build]]]))))])
 
 (def to_login (str central/Constants.central.root "/login?redirect=" (js/encodeURIComponent central/Constants.notes.root)))

@@ -127,8 +127,19 @@
  (fn [db _]
    (assoc db :dialog nil :error nil)))
 
+
 (re-frame/reg-event-db
  ::navigate
  (fn [db [_ to]]
    (do (rfe/push-state to) db)))
 
+
+(re-frame/reg-event-db
+ ::sidebar-open
+ (fn [db [_ dialog]]
+   (assoc db :sidebar-open? true)))
+
+(re-frame/reg-event-db
+ ::sidebar-close
+ (fn [db _]
+   (assoc db :sidebar-open? false)))

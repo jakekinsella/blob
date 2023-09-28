@@ -1,10 +1,14 @@
 (ns notes.components.sidebar
   (:require
+    [reagent.core :as r]
     [re-frame.core :as re-frame]
     [spade.core :refer [defclass]]
     [central :as central]
     [notes.events :as events]
     [notes.subs :as subs]))
+
+(defclass outer-style [] {:width "100%" :display "flex"})
+(defn outer [children] (into [:div {:class (outer-style)}] children))
 
 (defclass pane-style [] {:min-width "250px" :z-index 10})
 (defn pane [children] (into [:div {:class (pane-style)}] children))
@@ -57,7 +61,21 @@
   (into [:a (merge-with + attrs {:class (item-style)})]
     children))
 
-(defn build []
+(defclass top-style []
+  {:display "flex"})
+(defn top [children] (into [:div {:class (top-style)}] children))
+
+(defclass right-style []
+  {:padding-top "7px"
+   :margin-left "auto"
+   :margin-right "20px"
+   :cursor "pointer"}
+   [:&:hover {:color "black"}]
+   [:&:active {:color "black"}])
+(defn right [attrs children] (into [:div (merge-with + attrs {:class (right-style)})] children))
+
+
+(defn build [children]
   (defn render-item [note]
     [item {:href (str "/notes/" (js/encodeURIComponent (:title note)))
            :key (:title note)}
@@ -70,10 +88,16 @@
       (item {:href "#" 
              :on-click (fn [event] 
                          (do (.stopPropagation event) (re-frame/dispatch [::events/dialog-open dialog])))} "+ Add note")))
-  (let [notes @(re-frame/subscribe [::subs/notes])]
-    (pane
-      [(pane-inner
-        [(container
-          [(header {:href "/"} "Notes")
-           (spacer)
-           [:div (render-add-item) (spacer) (map render-item notes)]])])])))
+  (defn render-sidebar []
+    (let [notes @(re-frame/subscribe [::subs/notes])]
+      (pane
+        [(pane-inner
+          [(container
+            [(top
+              [(header {:href "/"} "Notes")
+               (right {:on-click (fn [] (re-frame/dispatch [::events/sidebar-close]))} [[:> central/Icon {:icon "arrow_back_ios_new" :size "1em"}]])])
+             (spacer)
+             [:div (render-add-item) (spacer) (map render-item notes)]])])])))
+
+  (let [sidebar-open? @(re-frame/subscribe [::subs/sidebar-open?])]
+    (into (outer [(if sidebar-open? (render-sidebar) [:div])]) children)))
