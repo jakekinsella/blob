@@ -1,9 +1,10 @@
 (ns notes.components.sidebar
   (:require
     [re-frame.core :as re-frame]
-    [notes.events :as events]
     [spade.core :refer [defclass]]
-    [central :as central]))
+    [central :as central]
+    [notes.events :as events]
+    [notes.subs :as subs]))
 
 (defclass pane-style [] {:min-width "250px" :z-index 10})
 (defn pane [children] (into [:div {:class (pane-style)}] children))
@@ -56,11 +57,11 @@
   (into [:a (merge-with + attrs {:class (item-style)})]
     children))
 
-(defn build [notes]
+(defn build []
   (defn render-item [note]
-    (item {:href (str "/notes/" (js/encodeURIComponent (:title note)))
+    [item {:href (str "/notes/" (js/encodeURIComponent (:title note)))
            :key (:title note)}
-          [(:title note)]))
+          [(:title note)]])
   (defn render-add-item []
     (let [dialog {:title "Add Note"
                   :label "Title"
@@ -69,10 +70,10 @@
       (item {:href "#" 
              :on-click (fn [event] 
                          (do (.stopPropagation event) (re-frame/dispatch [::events/dialog-open dialog])))} "+ Add note")))
-
-  (pane
-    [(pane-inner
-      [(container
-        [(header {:href "/"} "Notes")
-         (spacer)
-         [:div (render-add-item) (spacer) (map render-item notes)]])])]))
+  (let [notes @(re-frame/subscribe [::subs/notes])]
+    (pane
+      [(pane-inner
+        [(container
+          [(header {:href "/"} "Notes")
+           (spacer)
+           [:div (render-add-item) (spacer) (map render-item notes)]])])])))

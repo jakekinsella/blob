@@ -89,12 +89,14 @@
 (reg-event-with-user
  ::save-note
  (fn [db [_ title body after]]
-   (do
-     (->
-       (api/create-note (:email (:user db)) title body)
-       (.then #(re-frame/dispatch [::save-note-complete after]))
-       (.catch #(re-frame/dispatch [::set-error "Invalid title"])))
-     db)))
+   (let [note {:title title :body body :last-modified (str (-> js/Date .now))}
+         out-notes (into [note] (filter #(not (= title (:title %))) (-> db :notes :notes)))]
+     (do
+       (->
+         (api/create-note (:email (:user db)) title body)
+         (.then #(re-frame/dispatch [::save-note-complete after]))
+         (.catch #(re-frame/dispatch [::set-error "Invalid title"])))
+       (assoc db :notes {:loaded true :notes out-notes})))))
 
 
 (re-frame/reg-event-db

@@ -5,7 +5,8 @@
     [react :as react]
     [spade.core :refer [defclass]]
     [central :as central]
-    [notes.events :as events]))
+    [notes.events :as events]
+    [notes.subs :as subs]))
 
 (defclass textbox-style []
   {:width "98%"
@@ -22,6 +23,7 @@
 (defn textbox [attrs]
   [:textarea (merge-with + {:class (textbox-style) :required true} attrs)])
 
-(defn build [selected]
-  [textbox {:default-value (:body selected)
-            :on-change (fn [event] (re-frame/dispatch [::events/save-note (:title selected) (-> event .-target .-value)]))}])
+(defn build []
+  (let [selected @(re-frame/subscribe [::subs/selected])]
+    [textbox {:default-value (:body selected)
+              :on-change (fn [event] (re-frame/dispatch [::events/save-note (:title selected) (-> event .-target .-value)]))}]))

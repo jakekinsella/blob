@@ -4,7 +4,8 @@
     [spade.core :refer [defclass]]
     [central :as central]
     [notes.routes :as routes]
-    [notes.events :as events]))
+    [notes.events :as events]
+    [notes.subs :as subs]))
 
 (defclass pane-style []
   {:position "fixed"
@@ -32,6 +33,7 @@
   [:&:hover {:color central/Constants.colors.red}])
 (defn delete [attrs child] [:div (merge-with + attrs {:class (delete-style)}) child])
 
-(defn build [selected]
-  (pane [(title [(:title selected)])
-         (more (delete {:on-click (fn [] (re-frame/dispatch [::events/delete-note (:title selected) [::events/navigate ::routes/index]]))} [:> central/Icon {:icon "delete" :size "1.25em"}]))]))
+(defn build []
+  (let [selected @(re-frame/subscribe [::subs/selected])]
+    (pane [(title [(:title selected)])
+           (more (delete {:on-click (fn [] (re-frame/dispatch [::events/delete-note (:title selected) [::events/navigate ::routes/index]]))} [:> central/Icon {:icon "delete" :size "1.25em"}]))])))

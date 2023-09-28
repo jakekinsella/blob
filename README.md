@@ -111,4 +111,3 @@ Deploy the cluster:
  - deploy
  - notes ui mobile support
  - notes ui apple pencil support
- - notes ui sort by timestamp

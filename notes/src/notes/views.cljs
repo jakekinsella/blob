@@ -30,9 +30,9 @@
   (defn render-main [selected]
     (if (nil? selected)
       [:div]
-      [main [[menu/build selected]
+      [main [[menu/build]
              [spacer]
-             [:f> editor/build selected]]]))
+             [editor/build]]]))
   (defn dispatch-selected [title selected]
     (if (nil? title)
         (if (not (nil? selected))
@@ -41,10 +41,7 @@
 
   [:f> (do (re-frame/dispatch [::events/list-notes])
     (let [title (:title (:path (:parameters match)))
-          notes @(re-frame/subscribe [::subs/notes])
-          selected @(re-frame/subscribe [::subs/selected])
-          dialog @(re-frame/subscribe [::subs/dialog])
-          error @(re-frame/subscribe [::subs/error])]
+          selected @(re-frame/subscribe [::subs/selected])]
       (fn []
         (do (dispatch-selected title selected)
             (react/useEffect (fn []
@@ -56,9 +53,9 @@
                                    (do (println "HMMMMM") (js/document.addEventListener "click" listener)
                                        (fn [] (js/document.removeEventListener "click" listener))))))
 
-            [root [[sidebar/build notes]
+            [root [[sidebar/build]
                    [render-main selected]
-                   [dialog/build dialog error]]]))))])
+                   [dialog/build]]]))))])
 
 (def to_login (str central/Constants.central.root "/login?redirect=" (js/encodeURIComponent central/Constants.notes.root)))
 (defn login []
