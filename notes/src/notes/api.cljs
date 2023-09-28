@@ -26,7 +26,10 @@
     (.then #(:user %))))
 
 (defn note-apply [note]
-  {:title (string/replace (:key note) #"^notes/" "") :body (:body note)})
+  (let [last-modified (first (filter #(= (:key %) "last-modified") (:tags note)))]
+    {:title (string/replace (:key note) #"^notes/" "")
+     :body (:body note)
+     :last-modified (if (not (nil? last-modified)) (:value last-modified))}))
 
 (defn list-notes [email]
   (->
@@ -43,6 +46,6 @@
   (request "/blobs/create" {:method "POST" :body (json {:bucket email
                                                         :key (str "notes/" title)
                                                         :body body
-                                                        :tags []})}))
+                                                        :tags [{:key "last-modified" :value (str (-> js/Date .now))}]})}))
 (defn delete-note [email title]
   (request "/blobs/delete" {:method "POST" :body (json {:bucket email :key (str "notes/" title)})}))

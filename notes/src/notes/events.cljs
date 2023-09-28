@@ -46,14 +46,15 @@
 (re-frame/reg-event-db
  ::list-notes-complete
  (fn [db [_ notes]]
-   (assoc db :notes notes)))
+   (assoc db :notes {:loaded true :notes (reverse (sort-by :last-modified notes))})))
 
 (reg-event-with-user
  ::list-notes
- (fn [db _]
+ (fn [db [_ force]]
    (do
-     (.then (api/list-notes (:email (:user db)))
-         #(re-frame/dispatch [::list-notes-complete %]))
+     (if (or force (not (-> db :notes :loaded)))
+       (.then (api/list-notes (:email (:user db)))
+         #(re-frame/dispatch [::list-notes-complete %])))
      db)))
 
 
@@ -100,7 +101,7 @@
  ::delete-note-complete
  (fn [db [_ after]]
    (do
-     (re-frame/dispatch [::list-notes])
+     (re-frame/dispatch [::list-notes true])
      (re-frame/dispatch after)
      db)))
 

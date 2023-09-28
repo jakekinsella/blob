@@ -2,7 +2,7 @@
 
 (def default-db
   {:user nil
-   :notes []
+   :notes {:loaded false :notes []}
    :selected nil
    :dialog nil
    :error nil})

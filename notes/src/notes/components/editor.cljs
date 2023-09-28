@@ -8,7 +8,7 @@
     [notes.events :as events]))
 
 (defclass textbox-style []
-  {:width "100%"
+  {:width "98%"
    :height "93%"
    :padding-left "10px"
    :padding-right "10px"
@@ -16,20 +16,12 @@
    :font-size "15px"
    :font-family "'Roboto', sans-serif"
    :font-weight "100"
-   :user-select "none"}
+   :user-select "none"
+   :resize "none"}
   [:&:hover {:outline "none"}])
 (defn textbox [attrs]
   [:textarea (merge-with + {:class (textbox-style) :required true} attrs)])
 
-(defonce title (r/atom ""))
-(defonce body (r/atom ""))
-(defonce touched (r/atom false))
-
 (defn build [selected]
-  (let [sync (fn []
-               (if (not (= @title (:title selected))) (do (reset! title (:title selected)) (reset! body (:body selected)))))
-        save (fn [] (if @touched (do (reset! touched false) (re-frame/dispatch [::events/save-note @title @body]))))]
-    (do
-      (react/useEffect (fn [] (js/setInterval save 3000) (fn [] (js/clearInterval save))))
-      (sync)
-      (textbox {:value @body :on-change (fn [event] (do (reset! body (-> event .-target .-value)) (reset! touched true)))}))))
+  [textbox {:default-value (:body selected)
+            :on-change (fn [event] (re-frame/dispatch [::events/save-note (:title selected) (-> event .-target .-value)]))}])

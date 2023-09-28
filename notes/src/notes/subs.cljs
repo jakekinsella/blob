@@ -5,7 +5,7 @@
 (re-frame/reg-sub
  ::notes
  (fn [db]
-   (:notes db)))
+   (-> db :notes :notes)))
 
 (re-frame/reg-sub
  ::selected

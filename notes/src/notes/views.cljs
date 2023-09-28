@@ -30,9 +30,9 @@
   (defn render-main [selected]
     (if (nil? selected)
       [:div]
-      (main [(menu/build selected) 
-             (spacer)
-             (editor/build selected)])))
+      [main [[menu/build selected]
+             [spacer]
+             [:f> editor/build selected]]]))
   (defn dispatch-selected [title selected]
     (if (nil? title)
         (if (not (nil? selected))
@@ -41,10 +41,10 @@
 
   [:f> (do (re-frame/dispatch [::events/list-notes])
     (let [title (:title (:path (:parameters match)))
-              notes @(re-frame/subscribe [::subs/notes])
-              selected @(re-frame/subscribe [::subs/selected])
-              dialog @(re-frame/subscribe [::subs/dialog])
-              error @(re-frame/subscribe [::subs/error])]
+          notes @(re-frame/subscribe [::subs/notes])
+          selected @(re-frame/subscribe [::subs/selected])
+          dialog @(re-frame/subscribe [::subs/dialog])
+          error @(re-frame/subscribe [::subs/error])]
       (fn []
         (do (dispatch-selected title selected)
             (react/useEffect (fn []
@@ -53,12 +53,12 @@
                                        (fn [] (js/document.removeEventListener "keydown" listener))))))
             (react/useEffect (fn []
                                  (let [listener (fn [] (re-frame/dispatch [::events/dialog-close]))]
-                                   (do (js/document.addEventListener "click" listener)
+                                   (do (println "HMMMMM") (js/document.addEventListener "click" listener)
                                        (fn [] (js/document.removeEventListener "click" listener))))))
 
-            (root [(sidebar/build notes)
-                   (render-main selected)
-                   (dialog/build dialog error)])))))])
+            [root [[sidebar/build notes]
+                   [render-main selected]
+                   [dialog/build dialog error]]]))))])
 
 (def to_login (str central/Constants.central.root "/login?redirect=" (js/encodeURIComponent central/Constants.notes.root)))
 (defn login []
