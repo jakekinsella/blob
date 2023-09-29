@@ -3,3 +3,6 @@ install:
 
 start:
 	npm run watch
+
+release:
+	npm run release

@@ -17,15 +17,6 @@ local-deploy:
 local-teardown:
 	make -f build/local/Makefile teardown
 
-aws-init:
-	cd build/aws && make init
-
-aws-image:
-	cd build/aws && make image
-
-aws-repo:
-	cd build/aws && make repository
-
 cluster-publish:
 	make -f build/Makefile publish
 

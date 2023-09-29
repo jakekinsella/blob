@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: blob-config
+  labels:
+    app: blob
+data:
+  PGDATABASE: blob
+  PGHOST: postgres
+  PGPORT: "5432"
+  PGUSER: jakekinsella
+  PGPASSWORD: foobar
