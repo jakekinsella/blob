@@ -23,7 +23,9 @@
    :overflow-y "scroll"
    :border-right (str "1px solid" central/Constants.colors.black)
    :background-color "white"
-   :box-shadow (str "0px 0px 1px" central/Constants.colors.black)})
+   :box-shadow (str "0px 0px 1px" central/Constants.colors.black)}
+  (at-media {:max-width "750px"}
+    {:min-width "100%"}))
 (defn pane-inner [children] (into [:div {:class (pane-inner-style)}] children))
 
 (defclass container-style [] {:padding-top "14px" :padding-bottom "50px"})
@@ -39,7 +41,9 @@
    :color central/Constants.colors.black}
   [:&:hover {:text-decoration "none" :color "black"}]
   [:&:visited {:text-decoration "none"}]
-  [:&:active {:text-decoration "none"}])
+  [:&:active {:text-decoration "none"}]
+  (at-media {:max-width "750px"}
+    {:font-size "21px"}))
 (defn header [attrs children]
   (into [:a (merge-with + attrs {:class (header-style)})] children))
 
@@ -56,7 +60,9 @@
    :cursor "pointer"}
   [:&:hover {:text-decoration "none" :color "black"}]
   [:&:visited {:text-decoration "none"}]
-  [:&:active {:text-decoration "none"}])
+  [:&:active {:text-decoration "none"}]
+  (at-media {:max-width "750px"}
+    {:font-size "16px" :padding-top "5px"}))
 (defn item [attrs children]
   (into [:a (merge-with + attrs {:class (item-style)})]
     children))
@@ -71,13 +77,16 @@
    :margin-right "20px"
    :cursor "pointer"}
    [:&:hover {:color "black"}]
-   [:&:active {:color "black"}])
+   [:&:active {:color "black"}]
+   (at-media {:max-width "750px"}
+    {:padding-right "10px"}))
 (defn right [attrs children] (into [:div (merge-with + attrs {:class (right-style)})] children))
 
 
 (defn build [children]
   (defn render-item [note]
     [item {:href (str "/notes/" (js/encodeURIComponent (:title note)))
+           :on-click (fn [] (if (<= (-> js/window .-innerWidth) 750) (re-frame/dispatch [::events/sidebar-close])))
            :key (:title note)}
           [(:title note)]])
   (defn render-add-item []

@@ -22,7 +22,13 @@
 (defclass title-style [] {:font-size "20px" :color central/Constants.colors.black})
 (defn title [children] (into [:div {:class (title-style)}] children))
 
-(defclass more-style [] {:padding-top "5px" :padding-right "30px" :margin-left "auto" :margin-right "0"})
+(defclass more-style []
+  {:padding-top "5px"
+   :padding-right "30px"
+   :margin-left "auto"
+   :margin-right "0"}
+  (at-media {:max-width "750px"}
+    {:padding-right "5px"}))
 (defn more [child] [:div {:class (more-style)} child])
 
 (defclass delete-style []
@@ -32,7 +38,7 @@
 (defn delete [attrs child] [:div (merge-with + attrs {:class (delete-style)}) child])
 
 (defclass open-style []
-  {:padding-top "3px"
+  {:padding-top "4px"
    :padding-right "8px"
    :cursor "pointer"}
    [:&:hover {:color "black"}]

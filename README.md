@@ -109,5 +109,4 @@ Deploy the cluster:
 
 ## TODO
  - deploy
- - notes ui mobile support
  - notes ui apple pencil support
