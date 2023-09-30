@@ -6,10 +6,11 @@ publish:
 	envsubst < build/docker/notes/Dockerfile > tmp/build/docker/notes/Dockerfile
 
 
-	docker image build . -f tmp/build/docker/server/Dockerfile -t blob:latest --no-cache
+	docker image build . -f tmp/build/docker/server/Dockerfile -t blob:latest
 
-# 	make -f notes/Makefile release
-# 	docker image build . -f tmp/build/docker/ui/Dockerfile -t notes:latest
+	cd notes && make release
+	cd ..
+	docker image build . -f tmp/build/docker/notes/Dockerfile -t notes:latest
 
 deploy:
 	./build/local/deploy.sh

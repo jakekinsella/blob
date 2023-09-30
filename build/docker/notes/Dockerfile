@@ -6,6 +6,6 @@ ADD notes/resources/public/ public/
 
 FROM nginx
 COPY --from=0 /ui/public/ /usr/share/nginx/html/
-COPY build/docker/ui/default.conf /etc/nginx/conf.d/default.conf
+COPY build/docker/notes/default.conf /etc/nginx/conf.d/default.conf
 
 ENV PRODUCTION=1

@@ -12,7 +12,6 @@ depends: [
   "core" {>= "0.16.0"}
   "lwt_ppx" {>= "2.1.0"}
   "common" {= "~dev"}
-  "ppx_inline_test" {= "0.15.0"}
   "odoc" {with-doc}
 ]
 build: [
