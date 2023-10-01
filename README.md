@@ -60,7 +60,6 @@ Deployed as a Kubernetes cluster.
   
 
 #### Build+Deploy
-`make common-publish`  
 `make local-publish`  
 `make local-deploy`  
 
@@ -97,6 +96,7 @@ Set up the ECR repo:
 
 Export the Control Plane IP:  
 `export CONTROL_PLANE_IP=???`  
+`export NODE_IP=???`  
 
 Deploy the cluster:  
 `make cluster-publish`  
@@ -105,5 +105,4 @@ Deploy the cluster:
 ... wait \~10minutes time (until `sudo kubectl get pods` shows all the containers running) ...  
 
 ## TODO
- - deploy
  - notes ui apple pencil support

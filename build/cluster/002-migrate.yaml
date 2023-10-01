@@ -26,3 +26,4 @@ spec:
           imagePullPolicy: IfNotPresent
           command: ["/bin/sh", "-c", "createdb -h postgres -p 5432 blob || echo 0"]
       restartPolicy: OnFailure
+$NODE_SELECTOR
