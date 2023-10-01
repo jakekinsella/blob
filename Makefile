@@ -25,3 +25,9 @@ cluster-deploy:
 
 cluster-teardown:
 	make -f build/Makefile teardown
+
+aws-init:
+	cd build/aws && make init
+
+aws-repo:
+	cd build/aws && make repository

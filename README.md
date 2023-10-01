@@ -90,9 +90,6 @@ Initialize the build depedencies:
 `make aws-init`
 
 ### AWS Setup
-Build the AMI:  
-`make aws-image`
-
 Set up the ECR repo:  
 `make aws-repo`
 
