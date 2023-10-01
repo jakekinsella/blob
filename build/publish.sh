@@ -13,6 +13,9 @@ envsubst < build/docker/server/Dockerfile > tmp/build/docker/server/Dockerfile
 envsubst < build/docker/notes/Dockerfile > tmp/build/docker/notes/Dockerfile
 
 docker buildx build --platform linux/arm64/v8 . -f tmp/build/docker/server/Dockerfile -t "blob-arm:$VERSION"
+
+cd notes/ && make release
+cd ..
 docker buildx build --platform linux/arm64/v8 . -f tmp/build/docker/notes/Dockerfile -t "notes-arm:$VERSION"
 
 aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
