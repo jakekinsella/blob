@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: blob-ingress
+spec:
+  tls:
+  - hosts:
+      - $HOST
+    secretName: reader-cert
+  rules:
+  - host: $HOST
+    http:
+      paths:
+        - backend:
+            service:
+              name: blob-server
+              port:
+                number: 8080
+          path: /api
+          pathType: Prefix
+  defaultBackend:
+    service:
+      name: blob-server
+      port:
+        number: 8080

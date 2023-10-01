@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: blob-notes-ingress
+spec:
+  tls:
+  - hosts:
+      - $UI_HOST
+    secretName: reader-cert
+  rules:
+  - host: $UI_HOST
+    http:
+      paths:
+        - backend:
+            service:
+              name: blob-notes
+              port:
+                number: 8280
+          path: /
+          pathType: Prefix
+  defaultBackend:
+    service:
+      name: blob-notes
+      port:
+        number: 8280

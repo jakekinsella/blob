@@ -19,7 +19,4 @@ export HOST="blob.localhost"
 export UI_HOST="notes.localhost"
 export CENTRAL_BASE="http://central-server:8080/api"
 
-kubectl create secret generic blob-secrets --from-env-file secrets.env
-kubectl create secret tls blob-cert --key=cert.key --cert=cert.crt
-
 for f in build/cluster/*.yaml; do envsubst < $f | kubectl apply -f -; done

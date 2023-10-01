@@ -11,8 +11,6 @@ spec:
           envFrom:
             - configMapRef:
                 name: blob-config
-            - secretRef:
-                name: blob-secrets
           imagePullPolicy: $IMAGE_POLICY
           command: ["/bin/sh", "-c", "./database/main.exe migrate"]
       initContainers:
