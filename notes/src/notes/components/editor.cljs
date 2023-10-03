@@ -19,7 +19,7 @@
    :font-weight "100"
    :user-select "none"
    :resize "none"}
-  [:&:hover {:outline "none"}])
+  [:&:focus {:outline "none"}])
 (defn textbox [attrs]
   [:textarea (merge-with + {:class (textbox-style) :required true} attrs)])
 

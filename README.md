@@ -105,4 +105,5 @@ Deploy the cluster:
 ... wait \~10minutes time (until `sudo kubectl get pods` shows all the containers running) ...  
 
 ## TODO
+ - harden mobile view
  - notes ui apple pencil support

@@ -24,20 +24,14 @@
 (defn main [children] (into [:div {:class (main-style)}] children))
 
 (defn index [match]
-  (defn render-main [selected]
+  (defn render-main [title]
     [main [[menu/build]
-           (if (nil? selected) [:div] [editor/build])]])
-  (defn dispatch-selected [title selected]
-    (if (nil? title)
-        (if (not (nil? selected))
-            (re-frame/dispatch [::events/select-note-clear]))
-        (if (not (= title (:title selected))) (re-frame/dispatch [::events/select-note title]))))
+           (if (nil? title) [:div] [editor/build])]])
 
   [:f> (do (re-frame/dispatch [::events/list-notes])
-    (let [title (:title (:path (:parameters match)))
-          selected @(re-frame/subscribe [::subs/selected])]
+    (let [title (:title (:path (:parameters match)))]
       (fn []
-        (do (dispatch-selected title selected)
+        (do (re-frame/dispatch [::events/select-note title])
             (react/useEffect (fn []
                                  (let [listener (fn [event] (if (= (.-key event) "Escape") (re-frame/dispatch [::events/dialog-close])))]
                                    (do (js/document.addEventListener "keydown" listener)
@@ -46,8 +40,10 @@
                                  (let [listener (fn [] (re-frame/dispatch [::events/dialog-close]))]
                                    (do (js/document.addEventListener "click" listener)
                                        (fn [] (js/document.removeEventListener "click" listener))))))
+            (react/useEffect (fn [] (let [interval (fn [] (re-frame/dispatch [::events/list-notes true]))]
+                                      (do (js/setInterval interval 5000) (fn [] (js/clearInterval interval))))))
 
-            [root [[sidebar/build [[render-main selected]]]
+            [root [[sidebar/build [[render-main title]]]
                    [dialog/build]]]))))])
 
 (def to_login (str central/Constants.central.root "/login?redirect=" (js/encodeURIComponent central/Constants.notes.root)))
