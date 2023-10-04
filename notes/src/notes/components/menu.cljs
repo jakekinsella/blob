@@ -24,7 +24,7 @@
 
 (defclass more-style []
   {:padding-top "5px"
-   :padding-right "30px"
+   :padding-right "10px"
    :margin-left "auto"
    :margin-right "0"}
   (at-media {:max-width "750px"}
