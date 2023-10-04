@@ -40,8 +40,8 @@
                                  (let [listener (fn [] (re-frame/dispatch [::events/dialog-close]))]
                                    (do (js/document.addEventListener "click" listener)
                                        (fn [] (js/document.removeEventListener "click" listener))))))
-            (react/useEffect (fn [] (let [interval (fn [] (re-frame/dispatch [::events/list-notes true]))]
-                                      (do (js/setInterval interval 10000) (fn [] (js/clearInterval interval))))))
+            (react/useEffect (fn [] (let [interval (js/setInterval (fn [] (re-frame/dispatch [::events/list-notes true])) 10000)]
+                                      (fn [] (js/clearInterval interval)))))
 
             [root [[sidebar/build [[render-main title]]]
                    [dialog/build]]]))))])
