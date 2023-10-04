@@ -23,7 +23,14 @@
 (defn textbox [attrs]
   [:textarea (merge-with + {:class (textbox-style) :required true} attrs)])
 
+(defonce title (r/atom nil))
+(defonce body (r/atom nil))
+
 (defn build []
   (let [selected @(re-frame/subscribe [::subs/selected])]
-    [textbox {:default-value (:body selected)
-              :on-change (fn [event] (re-frame/dispatch [::events/save-note (:title selected) (-> event .-target .-value)]))}]))
+    (if (not (= (:title selected) @title)) (do (reset! title (:title selected)) (reset! body (:body selected))))
+    [textbox {:value @body
+              :on-change (fn [event]
+                           (let [value (-> event .-target .-value)]
+                             (reset! body value)
+                             (re-frame/dispatch [::events/save-note @title value])))}]))
