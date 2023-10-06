@@ -43,7 +43,7 @@
   [:&:visited {:text-decoration "none"}]
   [:&:active {:text-decoration "none"}]
   (at-media {:max-width "750px"}
-    {:font-size "21px"}))
+    {:font-size "22px"}))
 (defn header [attrs children]
   (into [:a (merge-with + attrs {:class (header-style)})] children))
 
@@ -62,7 +62,7 @@
   [:&:visited {:text-decoration "none"}]
   [:&:active {:text-decoration "none"}]
   (at-media {:max-width "750px"}
-    {:font-size "16px" :padding-top "5px"}))
+    {:font-size "18px" :padding-top "7px"}))
 (defn item [attrs children]
   (into [:a (merge-with + attrs {:class (item-style)})]
     children))

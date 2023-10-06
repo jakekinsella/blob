@@ -19,7 +19,10 @@
    :justify-content "space-between"})
 (defn pane [children] (into [:div {:class (pane-style)}] children))
 
-(defclass title-style [] {:font-size "20px" :color central/Constants.colors.black})
+(defclass title-style []
+  {:font-size "20px" :color central/Constants.colors.black}
+  (at-media {:max-width "750px"}
+    {:font-size "22px"}))
 (defn title [children] (into [:div {:class (title-style)}] children))
 
 (defclass more-style []

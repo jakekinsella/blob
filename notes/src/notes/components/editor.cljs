@@ -19,7 +19,9 @@
    :font-weight "100"
    :user-select "none"
    :resize "none"}
-  [:&:focus {:outline "none"}])
+  [:&:focus {:outline "none"}]
+  (at-media {:max-width "750px"}
+    {:font-size "17px"}))
 (defn textbox [attrs]
   [:textarea (merge-with + {:class (textbox-style) :required true} attrs)])
 

@@ -34,7 +34,9 @@
 (defclass title-style []
   {:padding-top "5px"
    :padding-bottom "25px"
-   :font-size "22px"})
+   :font-size "22px"}
+  (at-media {:max-width "750px"}
+    {:font-size "24px"}))
 (defn title [child] [:div {:class (title-style)} child])
 
 (defclass label-style [] {:padding-bottom "3px"})
@@ -45,7 +47,9 @@
 
 (defclass error-label-style []
   {:height "20px"
-   :font-size "14px"})
+   :font-size "14px"}
+  (at-media {:max-width "750px"}
+    {:font-size "16px"}))
 (defn error-label [child] [:div {:class (error-label-style)} child])
 
 (defclass textbox-style []
@@ -59,7 +63,9 @@
    :border-radius "3px"
    :font-size "15px"
    :font-family "'Roboto', sans-serif"
-   :font-weight "100"})
+   :font-weight "100"}
+  (at-media {:max-width "750px"}
+    {:font-size "17px"}))
 (defn textbox [attrs]
   [:input (merge-with + {:class (textbox-style) :type "text" :required true} attrs)])
 
@@ -75,7 +81,9 @@
    :font-weight "100"
    :color central/Constants.colors.black}
   [:&:hover {:background-color central/Constants.colors.whiteHover}]
-  [:&:active {:background-color central/Constants.colors.whiteActive}])
+  [:&:active {:background-color central/Constants.colors.whiteActive}]
+  (at-media {:max-width "750px"}
+    {:font-size "20px"}))
 (defn submit [child] [:button {:class (submit-style)} child])
 
 (def value (r/atom ""))
