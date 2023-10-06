@@ -11,8 +11,8 @@
 (defclass textbox-style []
   {:width "98%"
    :height "93%"
-   :padding-left "10px"
-   :padding-right "10px"
+   :padding-left "1%"
+   :padding-right "1%"
    :border "none"
    :font-size "15px"
    :font-family "'Roboto', sans-serif"
