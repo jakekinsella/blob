@@ -38,8 +38,6 @@
 (defonce pressed (r/atom false))
 (defonce points (r/atom []))
 
-(defclass canvas-style [] {})
-
 (defn canvas-editor []
   (let [ref (react/useRef)]
     (do (react/useEffect (fn []
@@ -75,11 +73,14 @@
                            (js/document.removeEventListener "mousedown" mousedown)
                            (js/document.removeEventListener "mouseup" mouseup)))))))
 
-      ; TODO: JK can probably set this to the devices width?
       ; TODO: JK on scroll to expand?
-      [:canvas {:class (canvas-style) :ref ref :width 1250 :height 2000}])))
+      [:canvas {:ref ref :width (:width @body) :height 2000}])))
 
 (defn build []
   (let [selected @(re-frame/subscribe [::subs/selected])]
-    (if (not (= (:title selected) @title)) (do (reset! title (:title selected)) (reset! body (:body selected))))
+    (if (not (= (:title selected) @title))
+      (do (reset! title (:title selected))
+          (reset! body (:body selected))
+          (reset! pressed false)
+          (reset! points [])))
     (if (string? @body) [text-editor] [:f> canvas-editor])))

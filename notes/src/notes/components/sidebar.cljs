@@ -10,12 +10,12 @@
 (defclass outer-style [] {:width "100%" :display "flex"})
 (defn outer [children] (into [:div {:class (outer-style)}] children))
 
-(defclass pane-style [] {:min-width "250px" :z-index 10})
+(defclass pane-style [] {:min-width "18vw" :z-index 10})
 (defn pane [children] (into [:div {:class (pane-style)}] children))
 
 (defclass pane-inner-style []
-  {:min-width "250px"
-   :max-width "250px"
+  {:min-width "18vw"
+   :max-width "18vw"
    :min-height "100%"
    :max-height "100%"
    :position "fixed"
@@ -98,10 +98,11 @@
              :on-click (fn [event] 
                          (do (.stopPropagation event) (re-frame/dispatch [::events/dialog-open dialog])))} "+ Add note")))
   (defn render-add-drawing []
-    (let [dialog {:title "Add Drawing"
+    (let [default {:type "drawing" :width (-> js/window .-screen .-width)}
+          dialog {:title "Add Drawing"
                   :label "Title"
                   :submit "Save"
-                  :on-submit (fn [value] (re-frame/dispatch [::events/save-note value {:type "drawing"} [::events/dialog-close]]))}]
+                  :on-submit (fn [value] (re-frame/dispatch [::events/save-note value default [::events/dialog-close]]))}]
       (item {:href "#" 
              :on-click (fn [event] 
                          (do (.stopPropagation event) (re-frame/dispatch [::events/dialog-open dialog])))} "+ Add drawing")))

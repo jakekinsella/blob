@@ -8,7 +8,9 @@
     [notes.subs :as subs]))
 
 (defclass pane-style []
-  {:display "flex"
+  {:position "fixed"
+   :width "82vw"
+   :display "flex"
    :align-items "center"
    :background-color "white"
    :height "50px"
@@ -17,7 +19,9 @@
    :border-bottom (str "1px solid" central/Constants.colors.black)
    :box-shadow (str "0px 0px 1px" central/Constants.colors.lightBlack)
    :justify-content "space-between"})
-(defn pane [children] (into [:div {:class (pane-style)}] children))
+(defn pane [children]
+  (let [sidebar-open? @(re-frame/subscribe [::subs/sidebar-open?])]
+    (into [:div {:class (pane-style) :style {:width (if sidebar-open? "82vw" "100vw")}}] children)))
 
 (defclass title-style []
   {:font-size "20px" :color central/Constants.colors.black}
@@ -27,11 +31,11 @@
 
 (defclass more-style []
   {:padding-top "5px"
-   :padding-right "10px"
+   :padding-right "30px"
    :margin-left "auto"
    :margin-right "0"}
   (at-media {:max-width "750px"}
-    {:padding-right "5px"}))
+    {:padding-right "25px"}))
 (defn more [child] [:div {:class (more-style)} child])
 
 (defclass delete-style []

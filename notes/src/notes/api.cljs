@@ -4,7 +4,7 @@
     [central :as central]))
 
 (defn json [obj] (js/JSON.stringify (clj->js obj)))
-(defn parse-json [json] (js->clj (js/JSON.parse json)))
+(defn parse-json [json] (-> json js/JSON.parse (js->clj :keywordize-keys true)))
 
 (defn token [] (central/Users.token))
 
