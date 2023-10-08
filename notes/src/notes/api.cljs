@@ -4,6 +4,7 @@
     [central :as central]))
 
 (defn json [obj] (js/JSON.stringify (clj->js obj)))
+(defn parse-json [json] (js->clj (js/JSON.parse json)))
 
 (defn token [] (central/Users.token))
 
@@ -28,7 +29,7 @@
 (defn note-apply [note]
   (let [last-modified (first (filter #(= (:key %) "last-modified") (:tags note)))]
     {:title (string/replace (:key note) #"^notes/" "")
-     :body (:body note)
+     :body (-> note :body parse-json)
      :last-modified (if (not (nil? last-modified)) (:value last-modified))}))
 
 (defn list-notes [email]
@@ -45,7 +46,7 @@
 (defn create-note [email title body]
   (request "/blobs/create" {:method "POST" :body (json {:bucket email
                                                         :key (str "notes/" title)
-                                                        :body body
+                                                        :body (json body)
                                                         :tags [{:key "last-modified" :value (str (-> js/Date .now))}]})}))
 (defn delete-note [email title]
   (request "/blobs/delete" {:method "POST" :body (json {:bucket email :key (str "notes/" title)})}))

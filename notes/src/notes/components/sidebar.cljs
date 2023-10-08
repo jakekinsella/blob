@@ -89,7 +89,7 @@
            :on-click (fn [] (if (<= (-> js/window .-innerWidth) 750) (re-frame/dispatch [::events/sidebar-close])))
            :key (:title note)}
           [(:title note)]])
-  (defn render-add-item []
+  (defn render-add []
     (let [dialog {:title "Add Note"
                   :label "Title"
                   :submit "Save"
@@ -97,6 +97,15 @@
       (item {:href "#" 
              :on-click (fn [event] 
                          (do (.stopPropagation event) (re-frame/dispatch [::events/dialog-open dialog])))} "+ Add note")))
+  (defn render-add-drawing []
+    (let [dialog {:title "Add Drawing"
+                  :label "Title"
+                  :submit "Save"
+                  :on-submit (fn [value] (re-frame/dispatch [::events/save-note value {:type "drawing"} [::events/dialog-close]]))}]
+      (item {:href "#" 
+             :on-click (fn [event] 
+                         (do (.stopPropagation event) (re-frame/dispatch [::events/dialog-open dialog])))} "+ Add drawing")))
+
   (defn render-sidebar []
     (let [notes @(re-frame/subscribe [::subs/notes])]
       (pane
@@ -106,7 +115,7 @@
               [(header {:href "/"} "Notes")
                (right {:on-click (fn [] (re-frame/dispatch [::events/sidebar-close]))} [[:> central/Icon {:icon "arrow_back_ios_new" :size "1em"}]])])
              (spacer)
-             [:div (render-add-item) (spacer) (map render-item notes)]])])])))
+             [:div (render-add) (render-add-drawing) (spacer) (map render-item notes)]])])])))
 
   (let [sidebar-open? @(re-frame/subscribe [::subs/sidebar-open?])]
     (into (outer [(if sidebar-open? (render-sidebar) [:div])]) children)))
