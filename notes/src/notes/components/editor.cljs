@@ -42,6 +42,7 @@
   (let [ref (react/useRef)]
     (do (react/useEffect (fn []
           (let [ctx (-> ref .-current (.getContext "2d"))
+                save (fn [] (re-frame/dispatch [::events/save-note @title @body]))
                 add-point (fn [e]
                             (let [canvas (.-current ref)
                                   rect (.getBoundingClientRect canvas)
@@ -65,16 +66,24 @@
                                            (.stroke ctx))
                                          (map vector @points (rest @points)))))))
                 mousedown (fn [e] (reset! pressed true) (draw e))
-                mouseup (fn [e] (reset! pressed false) (reset! points []))] ; TODO: JK
+                mouseup (fn [e] (reset! pressed false) (reset! points []))
+                scroll (fn [e]
+                  (let [screen-height (-> js/window .-screen .-height)
+                        canvas-height (:height @body)
+                        y (.-scrollY js/window)]
+                    (if (>= y (- canvas-height screen-height))
+                      (do (reset! body (assoc @body :height (+ canvas-height screen-height)))
+                          (save)))))]
             (do (js/document.addEventListener "mousemove" draw)
                 (js/document.addEventListener "mousedown" mousedown)
                 (js/document.addEventListener "mouseup" mouseup)
+                (js/document.addEventListener "scroll" scroll)
                 (fn [] (do (js/document.removeEventListener "mousemove" draw)
                            (js/document.removeEventListener "mousedown" mousedown)
-                           (js/document.removeEventListener "mouseup" mouseup)))))))
+                           (js/document.removeEventListener "mouseup" mouseup)
+                           (js/document.removeEventListener "scroll" scroll)))))))
 
-      ; TODO: JK on scroll to expand?
-      [:canvas {:ref ref :width (:width @body) :height 2000}])))
+      [:canvas {:ref ref :width (:width @body) :height (:height @body)}])))
 
 (defn build []
   (let [selected @(re-frame/subscribe [::subs/selected])]
