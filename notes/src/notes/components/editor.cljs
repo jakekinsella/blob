@@ -38,6 +38,8 @@
 (defonce pressed (r/atom false))
 (defonce points (r/atom []))
 
+(defclass canvas-style []
+  {:background "repeating-linear-gradient(white, white 35px, #777 36px)"})
 (defn canvas-editor []
   (let [ref (react/useRef)
         drawing @(re-frame/subscribe [::subs/drawing])]
@@ -46,9 +48,11 @@
                 apply-line (fn []
                              (if (= drawing :pen)
                                (do (set! (.-lineWidth ctx) 1)
+                                   (set! (.-globalCompositeOperation ctx) "source-over")
                                    (set! (.-strokeStyle ctx) "black"))
                                (do (set! (.-lineWidth ctx) 10)
-                                   (set! (.-strokeStyle ctx) "white"))))
+                                   (set! (.-globalCompositeOperation ctx) "destination-out")
+                                   (set! (.-strokeStyle ctx) "rgba(255,255,255,1)"))))
                 save (fn [] (re-frame/dispatch [::events/save-note @title @body]))
                 add-point (fn [e]
                             (let [canvas (.-current ref)
@@ -88,7 +92,7 @@
                            (js/document.removeEventListener "mouseup" mouseup)
                            (js/document.removeEventListener "scroll" scroll)))))))
 
-      [:canvas {:ref ref :width (:width @body) :height (:height @body)}])))
+      [:canvas {:class (canvas-style) :ref ref :width (:width @body) :height (:height @body)}])))
 
 (defn build []
   (let [selected @(re-frame/subscribe [::subs/selected])]
