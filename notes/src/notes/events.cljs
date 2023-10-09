@@ -143,3 +143,9 @@
  ::sidebar-close
  (fn [db _]
    (assoc db :sidebar-open? false)))
+
+
+(re-frame/reg-event-db
+ ::drawing-set
+ (fn [db [_ to]]
+   (assoc db :drawing to)))

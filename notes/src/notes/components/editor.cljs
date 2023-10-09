@@ -39,9 +39,16 @@
 (defonce points (r/atom []))
 
 (defn canvas-editor []
-  (let [ref (react/useRef)]
+  (let [ref (react/useRef)
+        drawing @(re-frame/subscribe [::subs/drawing])]
     (do (react/useEffect (fn []
           (let [ctx (-> ref .-current (.getContext "2d"))
+                apply-line (fn []
+                             (if (= drawing :pen)
+                               (do (set! (.-lineWidth ctx) 1)
+                                   (set! (.-strokeStyle ctx) "black"))
+                               (do (set! (.-lineWidth ctx) 10)
+                                   (set! (.-strokeStyle ctx) "white"))))
                 save (fn [] (re-frame/dispatch [::events/save-note @title @body]))
                 add-point (fn [e]
                             (let [canvas (.-current ref)
@@ -49,16 +56,14 @@
                                   scale-x (/ (.-width canvas) (.-width rect))
                                   scale-y (/ (.-height canvas) (.-height rect))
                                   x (* (- (.-clientX e) (.-left rect)) scale-x)
-                                  y (* (- (.-clientY e) (.-top rect)) scale-y)
-                                  pos {:x x :y y}]
-                              (if (not (= (last @points) pos)) (reset! points (concat @points [pos])))))
+                                  y (* (- (.-clientY e) (.-top rect)) scale-y)]
+                              (reset! points (concat @points [{:x x :y y}]))))
                 draw (fn [e]
                        (if @pressed
                          (do (add-point e)
-                             (set! (.-lineWidth ctx) 1)
                              (set! (.-lineCap ctx) "round")
                              (set! (.-lineJoin ctx) "round")
-                             (set! (.-strokeStyle ctx) "black")
+                             (apply-line)
                              (.beginPath ctx)
                              (dorun (map (fn [[from to]]
                                            (.moveTo ctx (:x from) (:y from))

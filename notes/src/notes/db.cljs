@@ -6,4 +6,5 @@
    :selected nil
    :dialog nil
    :error nil
-   :sidebar-open? true})
+   :sidebar-open? true
+   :drawing :pen})

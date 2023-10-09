@@ -26,3 +26,8 @@
  ::sidebar-open?
  (fn [db]
    (:sidebar-open? db)))
+
+(re-frame/reg-sub
+ ::drawing
+ (fn [db]
+   (:drawing db)))
