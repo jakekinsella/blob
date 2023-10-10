@@ -45,14 +45,22 @@
         drawing @(re-frame/subscribe [::subs/drawing])]
     (do (react/useEffect (fn []
           (let [ctx (-> ref .-current (.getContext "2d"))
-                apply-line (fn []
-                             (if (= drawing :pen)
-                               (do (set! (.-lineWidth ctx) 1)
-                                   (set! (.-globalCompositeOperation ctx) "source-over")
-                                   (set! (.-strokeStyle ctx) "black"))
-                               (do (set! (.-lineWidth ctx) 10)
-                                   (set! (.-globalCompositeOperation ctx) "destination-out")
-                                   (set! (.-strokeStyle ctx) "rgba(255,255,255,1)"))))
+                draw-line (fn [drawing points]
+                             (do(set! (.-lineCap ctx) "round")
+                                 (set! (.-lineJoin ctx) "round")
+                                 (if (= drawing "pen")
+                                   (do (set! (.-lineWidth ctx) 1)
+                                       (set! (.-globalCompositeOperation ctx) "source-over")
+                                       (set! (.-strokeStyle ctx) "black"))
+                                   (do (set! (.-lineWidth ctx) 10)
+                                       (set! (.-globalCompositeOperation ctx) "destination-out")
+                                       (set! (.-strokeStyle ctx) "rgba(255,255,255,1)")))
+                                 (.beginPath ctx)
+                                 (dorun (map (fn [[from to]]
+                                           (.moveTo ctx (:x from) (:y from))
+                                           (.lineTo ctx (:x to) (:y to))
+                                           (.stroke ctx))
+                                         (map vector points (rest points))))))
                 save (fn [] (re-frame/dispatch [::events/save-note @title @body]))
                 add-point (fn [e]
                             (let [canvas (.-current ref)
@@ -65,25 +73,24 @@
                 draw (fn [e]
                        (if @pressed
                          (do (add-point e)
-                             (set! (.-lineCap ctx) "round")
-                             (set! (.-lineJoin ctx) "round")
-                             (apply-line)
-                             (.beginPath ctx)
-                             (dorun (map (fn [[from to]]
-                                           (.moveTo ctx (:x from) (:y from))
-                                           (.lineTo ctx (:x to) (:y to))
-                                           (.stroke ctx))
-                                         (map vector @points (rest @points)))))))
+                             (draw-line drawing @points))))
                 mousedown (fn [e] (reset! pressed true) (draw e))
-                mouseup (fn [e] (reset! pressed false) (reset! points []))
+                mouseup (fn [e]
+                  (do (reset! pressed false)
+                      (reset! body (assoc @body :lines (concat (:lines @body) [{:drawing drawing :points @points}])))
+                      (save)
+                      (reset! points [])))
                 scroll (fn [e]
                   (let [screen-height (-> js/window .-screen .-height)
                         canvas-height (:height @body)
                         y (.-scrollY js/window)]
                     (if (>= y (- canvas-height screen-height))
                       (do (reset! body (assoc @body :height (+ canvas-height screen-height)))
-                          (save)))))]
-            (do (js/document.addEventListener "mousemove" draw)
+                          (save)))))
+                init (fn [] (dorun (map (fn [line] (draw-line (:drawing line) (:points line))) (:lines @body))))]
+
+            (do (init)
+                (js/document.addEventListener "mousemove" draw)
                 (js/document.addEventListener "mousedown" mousedown)
                 (js/document.addEventListener "mouseup" mouseup)
                 (js/document.addEventListener "scroll" scroll)

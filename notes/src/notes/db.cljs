@@ -7,4 +7,4 @@
    :dialog nil
    :error nil
    :sidebar-open? true
-   :drawing :pen})
+   :drawing "pen"})

@@ -98,7 +98,7 @@
              :on-click (fn [event] 
                          (do (.stopPropagation event) (re-frame/dispatch [::events/dialog-open dialog])))} "+ Add note")))
   (defn render-add-drawing []
-    (let [default {:type "drawing" :width (-> js/window .-screen .-width) :height (-> js/window .-screen .-height (* 2))}
+    (let [default {:type "drawing" :width (-> js/window .-screen .-width) :height (-> js/window .-screen .-height (* 2)) :lines []}
           dialog {:title "Add Drawing"
                   :label "Title"
                   :submit "Save"

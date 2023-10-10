@@ -58,7 +58,7 @@
   [:&:hover {:color "black"}]
   [:&:active {:color "black"}])
 (defn eraser [drawing]
-  [:div {:class (eraser-style) :on-click (fn [] (re-frame/dispatch [::events/drawing-set (if (= drawing :eraser) :pen :eraser)]))}
+  [:div {:class (eraser-style) :on-click (fn [] (re-frame/dispatch [::events/drawing-set (if (= drawing :eraser) "pen" "eraser")]))}
     [:span {:class "material-symbols-outlined" :style {:font-size "1.25em"}} (if (= drawing :eraser) "ink_eraser" "ink_eraser_off")]])
 
 (defn drawing-options []
