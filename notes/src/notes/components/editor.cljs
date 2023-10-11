@@ -46,13 +46,13 @@
     (do (react/useEffect (fn []
           (let [ctx (-> ref .-current (.getContext "2d"))
                 draw-line (fn [drawing points]
-                             (do(set! (.-lineCap ctx) "round")
+                             (do (set! (.-lineCap ctx) "round")
                                  (set! (.-lineJoin ctx) "round")
                                  (if (= drawing "pen")
-                                   (do (set! (.-lineWidth ctx) 1)
+                                   (do (set! (.-lineWidth ctx) 3)
                                        (set! (.-globalCompositeOperation ctx) "source-over")
                                        (set! (.-strokeStyle ctx) "black"))
-                                   (do (set! (.-lineWidth ctx) 10)
+                                   (do (set! (.-lineWidth ctx) 15)
                                        (set! (.-globalCompositeOperation ctx) "destination-out")
                                        (set! (.-strokeStyle ctx) "rgba(255,255,255,1)")))
                                  (.beginPath ctx)
@@ -69,7 +69,8 @@
                                   scale-y (/ (.-height canvas) (.-height rect))
                                   x (* (- (.-clientX e) (.-left rect)) scale-x)
                                   y (* (- (.-clientY e) (.-top rect)) scale-y)]
-                              (reset! points (concat @points [{:x x :y y}]))))
+                                (println (-> e .-touches))
+                                (reset! points (concat @points [{:x x :y y}]))))
                 draw (fn [e]
                        (if @pressed
                          (do (add-point e)
@@ -87,7 +88,12 @@
                     (if (>= y (- canvas-height screen-height))
                       (do (reset! body (assoc @body :height (+ canvas-height screen-height)))
                           (save)))))
-                init (fn [] (dorun (map (fn [line] (draw-line (:drawing line) (:points line))) (:lines @body))))]
+                init (fn []
+                       (do (set! (-> ref .-current .-width) (* (:width @body) 1.5))
+                           (set! (-> ref .-current .-height) (* (:height @body) 1.5))
+                           (set! (-> ref .-current .-style .-width) (str (:width @body) "px"))
+                           (set! (-> ref .-current .-style .-height) (str (:height @body) "px"))
+                           (dorun (map (fn [line] (draw-line (:drawing line) (:points line))) (:lines @body)))))]
 
             (do (init)
                 (js/document.addEventListener "mousemove" draw)
