@@ -13,6 +13,7 @@
    :height "93%"
    :padding-left "1%"
    :padding-right "1%"
+   :padding-top "52px"
    :border "none"
    :font-size "15px"
    :font-family "'Roboto', sans-serif"
@@ -82,12 +83,14 @@
                       (save)
                       (reset! points [])))
                 scroll (fn [e]
-                  (let [screen-height (-> js/window .-screen .-height)
-                        canvas-height (:height @body)
-                        y (.-scrollY js/window)]
-                    (if (>= y (- canvas-height screen-height))
-                      (do (reset! body (assoc @body :height (+ canvas-height screen-height)))
-                          (save)))))
+                  (if (= (-> e .-pointerType) "pen")
+                    (.preventDefault e)
+                    (let [screen-height (-> js/window .-screen .-height)
+                          canvas-height (:height @body)
+                          y (.-scrollY js/window)]
+                      (if (>= y (- canvas-height screen-height))
+                        (do (reset! body (assoc @body :height (+ canvas-height screen-height)))
+                            (save))))))
                 init (fn []
                        (do (set! (-> ref .-current .-width) (* (:width @body) 1.5))
                            (set! (-> ref .-current .-height) (* (:height @body) 1.5))
