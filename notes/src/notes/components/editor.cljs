@@ -63,13 +63,14 @@
                                          (map vector points (rest points))))))
                 save (fn [] (re-frame/dispatch [::events/save-note @title @body]))
                 add-point (fn [e]
-                            (let [canvas (.-current ref)
-                                  rect (.getBoundingClientRect canvas)
-                                  scale-x (/ (.-width canvas) (.-width rect))
-                                  scale-y (/ (.-height canvas) (.-height rect))
-                                  x (* (- (.-clientX e) (.-left rect)) scale-x)
-                                  y (* (- (.-clientY e) (.-top rect)) scale-y)]
-                                (reset! points (concat @points [{:x x :y y}]))))
+                            (if (not (= (-> e .-pointerType) "touch"))
+                              (let [canvas (.-current ref)
+                                    rect (.getBoundingClientRect canvas)
+                                    scale-x (/ (.-width canvas) (.-width rect))
+                                    scale-y (/ (.-height canvas) (.-height rect))
+                                    x (* (- (.-clientX e) (.-left rect)) scale-x)
+                                    y (* (- (.-clientY e) (.-top rect)) scale-y)]
+                                  (reset! points (concat @points [{:x x :y y}])))))
                 draw (fn [e]
                        (if @pressed
                          (do (add-point e)
@@ -95,13 +96,13 @@
                            (dorun (map (fn [line] (draw-line (:drawing line) (:points line))) (:lines @body)))))]
 
             (do (init)
-                (js/document.addEventListener "mousemove" draw)
-                (js/document.addEventListener "mousedown" mousedown)
-                (js/document.addEventListener "mouseup" mouseup)
+                (js/document.addEventListener "pointermove" draw)
+                (js/document.addEventListener "pointerdown" mousedown)
+                (js/document.addEventListener "pointerup" mouseup)
                 (js/document.addEventListener "scroll" scroll)
-                (fn [] (do (js/document.removeEventListener "mousemove" draw)
-                           (js/document.removeEventListener "mousedown" mousedown)
-                           (js/document.removeEventListener "mouseup" mouseup)
+                (fn [] (do (js/document.removeEventListener "pointermove" draw)
+                           (js/document.removeEventListener "pointerdown" mousedown)
+                           (js/document.removeEventListener "pointerup" mouseup)
                            (js/document.removeEventListener "scroll" scroll)))))))
 
       [:canvas {:class (canvas-style) :ref ref :width (:width @body) :height (:height @body)}])))
