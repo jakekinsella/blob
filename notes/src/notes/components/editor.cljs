@@ -69,7 +69,6 @@
                                   scale-y (/ (.-height canvas) (.-height rect))
                                   x (* (- (.-clientX e) (.-left rect)) scale-x)
                                   y (* (- (.-clientY e) (.-top rect)) scale-y)]
-                                (println (-> e .-touches))
                                 (reset! points (concat @points [{:x x :y y}]))))
                 draw (fn [e]
                        (if @pressed
