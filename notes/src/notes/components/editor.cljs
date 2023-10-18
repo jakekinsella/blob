@@ -13,7 +13,7 @@
    :height "93%"
    :padding-left "1%"
    :padding-right "1%"
-   :padding-top "52px"
+   :padding-top "58px"
    :border "none"
    :font-size "15px"
    :font-family "'Roboto', sans-serif"
@@ -36,6 +36,7 @@
                            (reset! body value)
                            (re-frame/dispatch [::events/save-note @title value])))}])
 
+(defonce pointer (r/atom nil))
 (defonce pressed (r/atom false))
 (defonce points (r/atom []))
 
@@ -64,6 +65,7 @@
                                          (map vector points (rest points))))))
                 save (fn [] (re-frame/dispatch [::events/save-note @title @body]))
                 add-point (fn [e]
+                            (reset! pointer (-> e .-pointerType))
                             (if (not (= (-> e .-pointerType) "touch"))
                               (let [canvas (.-current ref)
                                     rect (.getBoundingClientRect canvas)
@@ -83,7 +85,7 @@
                       (save)
                       (reset! points [])))
                 scroll (fn [e]
-                  (if (= (-> e .-pointerType) "pen")
+                  (if (= @pointer "pen")
                     (.preventDefault e)
                     (let [screen-height (-> js/window .-screen .-height)
                           canvas-height (:height @body)
