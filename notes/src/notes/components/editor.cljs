@@ -64,8 +64,8 @@
                                            (.stroke ctx))
                                          (map vector points (rest points))))))
                 save (fn [] (re-frame/dispatch [::events/save-note @title @body]))
+                set-pointer (fn [e] (reset! pointer (-> e .-pointerType)))
                 add-point (fn [e]
-                            (reset! pointer (-> e .-pointerType))
                             (if (not (= (-> e .-pointerType) "touch"))
                               (let [canvas (.-current ref)
                                     rect (.getBoundingClientRect canvas)
@@ -75,12 +75,14 @@
                                     y (* (- (.-clientY e) (.-top rect)) scale-y)]
                                   (reset! points (concat @points [{:x x :y y}])))))
                 draw (fn [e]
+                       (set-pointer e)
                        (if @pressed
                          (do (add-point e)
                              (draw-line drawing @points))))
-                mousedown (fn [e] (reset! pressed true) (draw e))
+                mousedown (fn [e] (set-pointer e) (reset! pressed true) (draw e))
                 mouseup (fn [e]
-                  (do (reset! pressed false)
+                  (do (set-pointer e)
+                      (reset! pressed false)
                       (reset! body (assoc @body :lines (concat (:lines @body) [{:drawing drawing :points @points}])))
                       (save)
                       (reset! points [])))
