@@ -86,6 +86,7 @@
                       (reset! body (assoc @body :lines (concat (:lines @body) [{:drawing drawing :points @points}])))
                       (save)
                       (reset! points [])))
+                touchstart (fn [e] (if (= @pointer "pen") (.preventDefault e)))
                 scroll (fn [e]
                   (if (= @pointer "pen")
                     (.preventDefault e)
@@ -104,13 +105,15 @@
 
             (do (init)
                 (js/document.addEventListener "pointermove" draw)
-                (js/document.addEventListener "pointerdown" mousedown)
+                (js/document.addEventListener "pointerdown" mousedown {:capture true})
                 (js/document.addEventListener "pointerup" mouseup)
-                (js/document.addEventListener "scroll" scroll)
+                (js/document.addEventListener "scroll" scroll {:passive false :capture false})
+                (js/document.addEventListener "touchstart" touchstart {:passive false :capture false})
                 (fn [] (do (js/document.removeEventListener "pointermove" draw)
                            (js/document.removeEventListener "pointerdown" mousedown)
                            (js/document.removeEventListener "pointerup" mouseup)
-                           (js/document.removeEventListener "scroll" scroll)))))))
+                           (js/document.removeEventListener "scroll" scroll)
+                           (js/document.removeEventListener "touchstart" touchstart)))))))
 
       [:canvas {:class (canvas-style) :ref ref :width (:width @body) :height (:height @body)}])))
 
@@ -121,4 +124,4 @@
           (reset! body (:body selected))
           (reset! pressed false)
           (reset! points [])))
-    (if (string? @body) [text-editor] [:f> canvas-editor])))
+    (if (not (string? @body)) [:f> canvas-editor] [text-editor])))
