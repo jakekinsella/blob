@@ -36,6 +36,8 @@
                            (reset! body value)
                            (re-frame/dispatch [::events/save-note @title value])))}])
 
+(defonce width (r/atom nil))
+(defonce height (r/atom nil))
 (defonce pressed (r/atom false))
 (defonce points (r/atom []))
 
@@ -77,12 +79,14 @@
                          (do (add-point e)
                              (draw-line drawing @points))))
                 mousedown (fn [e]
-                  (do (if (and (= (-> e .-pointerType) "pen") (-> e .-isPrimary))
+                  (do (set! (-> js/document .-body .-style .-userSelect) "none")
+                      (if (and (= (-> e .-pointerType) "pen") (-> e .-isPrimary))
                           (set! (-> ref .-current .-style .-touchAction) "none"))
                       (reset! pressed true)
                       (draw e)))
                 mouseup (fn [e]
-                  (do (reset! pressed false)
+                  (do (set! (-> js/document .-body .-style .-userSelect) "default")
+                      (reset! pressed false)
                       (reset! body (assoc @body :lines (concat (:lines @body) [{:drawing drawing :points @points}])))
                       (save)
                       (reset! points [])))
@@ -92,6 +96,7 @@
                         y (.-scrollY js/window)]
                     (if (>= y (- canvas-height screen-height))
                       (do (reset! body (assoc @body :height (+ canvas-height screen-height)))
+                          (reset! height (+ canvas-height screen-height))
                           (save)))))
                 init (fn []
                        (do (set! (-> ref .-current .-width) (* (:width @body) 1.5))
@@ -110,13 +115,16 @@
                            (js/document.removeEventListener "pointerup" mouseup)
                            (js/document.removeEventListener "scroll" scroll)))))))
 
-      [:canvas {:class (canvas-style) :ref ref :width (:width @body) :height (:height @body)}])))
+      [:canvas {:class (canvas-style) :ref ref :width @width :height @height}])))
 
 (defn build []
   (let [selected @(re-frame/subscribe [::subs/selected])]
     (if (not (= (:title selected) @title))
       (do (reset! title (:title selected))
           (reset! body (:body selected))
+          (reset! width (:width @body))
+          (reset! height (:width @body))
           (reset! pressed false)
           (reset! points [])))
-    (if (not (string? @body)) [:f> canvas-editor] [text-editor])))
+    ; (if (not (string? @body)) [:f> canvas-editor] [text-editor])))
+    [:f> canvas-editor]))

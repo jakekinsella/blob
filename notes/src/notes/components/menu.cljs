@@ -68,7 +68,7 @@
 (defn build []
   (let [selected @(re-frame/subscribe [::subs/selected])
         sidebar-open? @(re-frame/subscribe [::subs/sidebar-open?])]
-    
+
     (pane [(if (not sidebar-open?) (open {:on-click (fn [] (re-frame/dispatch [::events/sidebar-open]))} [[:> central/Icon {:icon "menu" :size "1.25em"}]]))
            (title [(:title selected)])
            (if (not (string? (:body selected))) [drawing-options])
