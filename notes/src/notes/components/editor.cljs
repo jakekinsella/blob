@@ -99,8 +99,8 @@
                           (reset! height (+ canvas-height screen-height))
                           (save)))))
                 init (fn []
-                       (do (set! (-> ref .-current .-width) (* (:width @body) 1.5))
-                           (set! (-> ref .-current .-height) (* (:height @body) 1.5))
+                       (do (set! (-> ref .-current .-width) (:width @body))
+                           (set! (-> ref .-current .-height) (:height @body))
                            (set! (-> ref .-current .-style .-width) (str (:width @body) "px"))
                            (set! (-> ref .-current .-style .-height) (str (:height @body) "px"))
                            (dorun (map (fn [line] (draw-line (:drawing line) (:points line))) (:lines @body)))))]
