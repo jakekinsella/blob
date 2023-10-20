@@ -36,7 +36,6 @@
                            (reset! body value)
                            (re-frame/dispatch [::events/save-note @title value])))}])
 
-(defonce pointer (r/atom nil))
 (defonce pressed (r/atom false))
 (defonce points (r/atom []))
 
@@ -64,9 +63,8 @@
                                            (.stroke ctx))
                                          (map vector points (rest points))))))
                 save (fn [] (re-frame/dispatch [::events/save-note @title @body]))
-                set-pointer (fn [e] (reset! pointer (-> e .-pointerType)))
                 add-point (fn [e]
-                            (if (not (= (-> e .-pointerType) "touch"))
+                            (if (and (not (= (-> e .-pointerType) "touch")) (-> e .-isPrimary))
                               (let [canvas (.-current ref)
                                     rect (.getBoundingClientRect canvas)
                                     scale-x (/ (.-width canvas) (.-width rect))
@@ -75,27 +73,26 @@
                                     y (* (- (.-clientY e) (.-top rect)) scale-y)]
                                   (reset! points (concat @points [{:x x :y y}])))))
                 draw (fn [e]
-                       (set-pointer e)
                        (if @pressed
                          (do (add-point e)
                              (draw-line drawing @points))))
-                mousedown (fn [e] (set-pointer e) (reset! pressed true) (draw e))
+                mousedown (fn [e]
+                  (do (if (and (= (-> e .-pointerType) "pen") (-> e .-isPrimary))
+                          (set! (-> ref .-current .-style .-touchAction) "none"))
+                      (reset! pressed true)
+                      (draw e)))
                 mouseup (fn [e]
-                  (do (set-pointer e)
-                      (reset! pressed false)
+                  (do (reset! pressed false)
                       (reset! body (assoc @body :lines (concat (:lines @body) [{:drawing drawing :points @points}])))
                       (save)
                       (reset! points [])))
-                touchstart (fn [e] (if (= @pointer "pen") (.preventDefault e)))
                 scroll (fn [e]
-                  (if (= @pointer "pen")
-                    (.preventDefault e)
-                    (let [screen-height (-> js/window .-screen .-height)
-                          canvas-height (:height @body)
-                          y (.-scrollY js/window)]
-                      (if (>= y (- canvas-height screen-height))
-                        (do (reset! body (assoc @body :height (+ canvas-height screen-height)))
-                            (save))))))
+                  (let [screen-height (-> js/window .-screen .-height)
+                        canvas-height (:height @body)
+                        y (.-scrollY js/window)]
+                    (if (>= y (- canvas-height screen-height))
+                      (do (reset! body (assoc @body :height (+ canvas-height screen-height)))
+                          (save)))))
                 init (fn []
                        (do (set! (-> ref .-current .-width) (* (:width @body) 1.5))
                            (set! (-> ref .-current .-height) (* (:height @body) 1.5))
@@ -105,15 +102,13 @@
 
             (do (init)
                 (js/document.addEventListener "pointermove" draw)
-                (js/document.addEventListener "pointerdown" mousedown {:capture true})
+                (js/document.addEventListener "pointerdown" mousedown)
                 (js/document.addEventListener "pointerup" mouseup)
-                (js/document.addEventListener "scroll" scroll {:passive false :capture false})
-                (js/document.addEventListener "touchstart" touchstart {:passive false :capture false})
+                (js/document.addEventListener "scroll" scroll)
                 (fn [] (do (js/document.removeEventListener "pointermove" draw)
                            (js/document.removeEventListener "pointerdown" mousedown)
                            (js/document.removeEventListener "pointerup" mouseup)
-                           (js/document.removeEventListener "scroll" scroll)
-                           (js/document.removeEventListener "touchstart" touchstart)))))))
+                           (js/document.removeEventListener "scroll" scroll)))))))
 
       [:canvas {:class (canvas-style) :ref ref :width (:width @body) :height (:height @body)}])))
 
