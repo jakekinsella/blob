@@ -126,5 +126,4 @@
           (reset! height (:width @body))
           (reset! pressed false)
           (reset! points [])))
-    ; (if (not (string? @body)) [:f> canvas-editor] [text-editor])))
-    [:f> canvas-editor]))
+    (if (not (string? @body)) [:f> canvas-editor] [text-editor])))
