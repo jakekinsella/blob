@@ -89,7 +89,7 @@
 (reg-event-with-user
  ::save-note
  (fn [db [_ title body after]]
-   (let [note {:title title :body body :last-modified (str (-> js/Date .now))}
+   (let [note (api/note-build {:title title :body body :last-modified (str (-> js/Date .now))})
          out-notes (into [note] (filter #(not (= title (:title %))) (-> db :notes :notes)))]
      (do
        (->

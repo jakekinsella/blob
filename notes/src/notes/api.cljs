@@ -26,11 +26,22 @@
     (central-request "/users/validate" {:method "POST" :body (json {:token (token)})})
     (.then #(:user %))))
 
+(defn note-build [note]
+  (let [title (:title note)
+        folder (string/split title #"/" 2)]
+    (assoc (assoc note
+                  :short-title
+                  (if (= (count folder) 2) (second folder) title))
+            :folder
+            (if (= (count folder) 2) (first folder) "default"))))
+
 (defn note-apply [note]
-  (let [last-modified (first (filter #(= (:key %) "last-modified") (:tags note)))]
-    {:title (string/replace (:key note) #"^notes/" "")
-     :body (-> note :body parse-json)
-     :last-modified (if (not (nil? last-modified)) (:value last-modified))}))
+  (let [last-modified (first (filter #(= (:key %) "last-modified") (:tags note)))
+        title (string/replace (:key note) #"^notes/" "")]
+    (note-build
+      {:title title
+       :body (->> note :body parse-json)
+       :last-modified (if (not (nil? last-modified)) (:value last-modified))})))
 
 (defn list-notes [email]
   (->
