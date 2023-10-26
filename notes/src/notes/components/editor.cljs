@@ -66,7 +66,7 @@
                                          (map vector points (rest points))))))
                 save (fn [] (re-frame/dispatch [::events/save-note @title @body]))
                 add-point (fn [e]
-                            (if (and (not (= (-> e .-pointerType) "touch")) (-> e .-isPrimary))
+                            (if (.-isPrimary e)
                               (let [canvas (.-current ref)
                                     rect (.getBoundingClientRect canvas)
                                     scale-x (/ (.-width canvas) (.-width rect))
@@ -79,13 +79,12 @@
                          (do (add-point e)
                              (draw-line drawing @points))))
                 mousedown (fn [e]
-                  (do (set! (-> js/document .-body .-style .-userSelect) "none")
-                      (if (and (= (-> e .-pointerType) "pen") (-> e .-isPrimary))
-                          (set! (-> ref .-current .-style .-touchAction) "none"))
-                      (reset! pressed true)
-                      (draw e)))
+                  (if (.-isPrimary e)
+                      (do (reset! pressed (not (= (.-pointerType e) "touch")))
+                          (draw e))))
+                touch (fn [e] (if @pressed (.preventDefault e)))
                 mouseup (fn [e]
-                  (do (set! (-> js/document .-body .-style .-userSelect) "default")
+                  (do (set! (-> js/document .-body .-style .-userSelect) "auto")
                       (reset! pressed false)
                       (reset! body (assoc @body :lines (concat (:lines @body) [{:drawing drawing :points @points}])))
                       (save)
@@ -98,22 +97,28 @@
                       (do (reset! body (assoc @body :height (+ canvas-height screen-height)))
                           (reset! height (+ canvas-height screen-height))
                           (save)))))
-                init (fn []
-                       (do (set! (-> ref .-current .-width) (:width @body))
-                           (set! (-> ref .-current .-height) (:height @body))
-                           (set! (-> ref .-current .-style .-width) (str (:width @body) "px"))
-                           (set! (-> ref .-current .-style .-height) (str (:height @body) "px"))
-                           (dorun (map (fn [line] (draw-line (:drawing line) (:points line))) (:lines @body)))))]
+                mount (fn []
+                        (do (set! (-> js/document .-body .-style .-userSelect) "none")
+                            (set! (-> ref .-current .-width) (:width @body))
+                            (set! (-> ref .-current .-height) (:height @body))
+                            (set! (-> ref .-current .-style .-width) (str (:width @body) "px"))
+                            (set! (-> ref .-current .-style .-height) (str (:height @body) "px"))
+                            (dorun (map (fn [line] (draw-line (:drawing line) (:points line))) (:lines @body)))))
+                unmount (fn []
+                        (do (set! (-> js/document .-body .-style .-userSelect) "auto")))]
 
-            (do (init)
+            (do (mount)
                 (js/document.addEventListener "pointermove" draw)
                 (js/document.addEventListener "pointerdown" mousedown)
+                (js/document.addEventListener "touchstart" touch (clj->js {:passive false}))
                 (js/document.addEventListener "pointerup" mouseup)
                 (js/document.addEventListener "scroll" scroll)
                 (fn [] (do (js/document.removeEventListener "pointermove" draw)
                            (js/document.removeEventListener "pointerdown" mousedown)
+                           (js/document.removeEventListener "touchstart" touch)
                            (js/document.removeEventListener "pointerup" mouseup)
-                           (js/document.removeEventListener "scroll" scroll)))))))
+                           (js/document.removeEventListener "scroll" scroll)
+                           (unmount)))))))
 
       [:canvas {:class (canvas-style) :ref ref :width @width :height @height}])))
 
