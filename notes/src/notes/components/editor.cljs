@@ -60,15 +60,16 @@
                                        (set! (.-globalCompositeOperation ctx) "destination-out")
                                        (set! (.-strokeStyle ctx) "rgba(255,255,255,1)")))
                                  (.beginPath ctx)
-                                 (dorun (map (fn [[from to]]
+                                 (dorun (map (fn [[from to1 to2]]
                                            (if (= drawing "pen")
                                                (if (or (nil? (:pressure from)) (= (:pressure from) 0))
                                                  (set! (.-lineWidth ctx) 3)
-                                                 (set! (.-lineWidth ctx) (* 10 (math/log (+ 1 (:pressure from)))))))
+                                                 (set! (.-lineWidth ctx) (* 15 (math/log (+ 1 (:pressure from)))))))
+                                           (.beginPath ctx)
                                            (.moveTo ctx (:x from) (:y from))
-                                           (.lineTo ctx (:x to) (:y to))
+                                           (.quadraticCurveTo ctx (:x to1) (:y to1) (:x to2) (:y to2))
                                            (.stroke ctx))
-                                         (map vector points (rest points))))))
+                                         (map vector points (rest points) (rest (rest points)))))))
                 save (fn [] (re-frame/dispatch [::events/save-note @title @body]))
                 add-point (fn [e]
                             (if (.-isPrimary e)
