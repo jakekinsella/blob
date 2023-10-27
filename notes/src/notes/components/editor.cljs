@@ -42,7 +42,7 @@
 (defonce points (r/atom []))
 
 (defclass canvas-style []
-  {:background "repeating-linear-gradient(white, white 35px, #777 36px)"})
+  {:background "repeating-linear-gradient(white, white 60px, #777 61px)"})
 (defn canvas-editor []
   (let [ref (react/useRef)
         drawing @(re-frame/subscribe [::subs/drawing])]
@@ -98,14 +98,11 @@
                           (reset! height (+ canvas-height screen-height))
                           (save)))))
                 mount (fn []
-                        (do (set! (-> js/document .-body .-style .-userSelect) "none")
-                            (set! (-> ref .-current .-width) (:width @body))
+                        (do (set! (-> ref .-current .-width) (:width @body))
                             (set! (-> ref .-current .-height) (:height @body))
                             (set! (-> ref .-current .-style .-width) (str (:width @body) "px"))
                             (set! (-> ref .-current .-style .-height) (str (:height @body) "px"))
-                            (dorun (map (fn [line] (draw-line (:drawing line) (:points line))) (:lines @body)))))
-                unmount (fn []
-                        (do (set! (-> js/document .-body .-style .-userSelect) "auto")))]
+                            (dorun (map (fn [line] (draw-line (:drawing line) (:points line))) (:lines @body)))))]
 
             (do (mount)
                 (js/document.addEventListener "pointermove" draw)
@@ -117,8 +114,7 @@
                            (js/document.removeEventListener "pointerdown" mousedown)
                            (js/document.removeEventListener "touchstart" touch)
                            (js/document.removeEventListener "pointerup" mouseup)
-                           (js/document.removeEventListener "scroll" scroll)
-                           (unmount)))))))
+                           (js/document.removeEventListener "scroll" scroll)))))))
 
       [:canvas {:class (canvas-style) :ref ref :width @width :height @height}])))
 
