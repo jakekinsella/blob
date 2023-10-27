@@ -63,8 +63,8 @@
                                  (dorun (map (fn [[from to]]
                                            (if (= drawing "pen")
                                                (if (or (nil? (:pressure from)) (= (:pressure from) 0))
-                                                 (set! (.-lineWidth ctx) 3)))
-                                                 ;(set! (.-lineWidth ctx) (* 10 (math/log (+ 1 (:pressure from)))))))
+                                                 (set! (.-lineWidth ctx) 3)
+                                                 (set! (.-lineWidth ctx) (* 10 (math/log (+ 1 (:pressure from)))))))
                                            (.moveTo ctx (:x from) (:y from))
                                            (.lineTo ctx (:x to) (:y to))
                                            (.stroke ctx))
@@ -103,8 +103,8 @@
                           (reset! height (+ canvas-height screen-height))
                           (save)))))
                 mount (fn []
-                        (do (set! (-> ref .-current .-width) (math/ceil (* 1.6 (:width @body))))
-                            (set! (-> ref .-current .-height) (math/ceil (* 1.6 (:height @body))))
+                        (do (set! (-> ref .-current .-width) (math/ceil (* 1.5 (:width @body))))
+                            (set! (-> ref .-current .-height) (math/ceil (* 1.5 (:height @body))))
                             (set! (-> ref .-current .-style .-width) (str (:width @body) "px"))
                             (set! (-> ref .-current .-style .-height) (str (:height @body) "px"))
                             (dorun (map (fn [line] (draw-line (:drawing line) (:points line))) (:lines @body)))))]
