@@ -60,6 +60,10 @@
                                        (set! (.-strokeStyle ctx) "rgba(255,255,255,1)")))
                                  (.beginPath ctx)
                                  (dorun (map (fn [[from to]]
+                                           (if (= drawing "pen")
+                                               (if (or (nil? (:pressure to)) (= (:pressure to) 0))
+                                               (set! (.-lineWidth ctx) 3)
+                                               (set! (.-lineWidth ctx) (* 5 (:pressure to)))))
                                            (.moveTo ctx (:x from) (:y from))
                                            (.lineTo ctx (:x to) (:y to))
                                            (.stroke ctx))
@@ -73,7 +77,7 @@
                                     scale-y (/ (.-height canvas) (.-height rect))
                                     x (* (- (.-clientX e) (.-left rect)) scale-x)
                                     y (* (- (.-clientY e) (.-top rect)) scale-y)]
-                                  (reset! points (concat @points [{:x x :y y}])))))
+                                  (reset! points (concat @points [{:x x :y y :pressure (.-pressure e)}])))))
                 draw (fn [e]
                        (if @pressed
                          (do (add-point e)
