@@ -64,7 +64,7 @@
                                            (if (= drawing "pen")
                                                (if (or (nil? (:pressure to)) (= (:pressure to) 0))
                                                  (set! (.-lineWidth ctx) 3)
-                                                 (set! (.-lineWidth ctx) (* 20 (math/log (+ 1 (:pressure from))) 20))))
+                                                 (set! (.-lineWidth ctx) (* 20 (math/log (+ 1 (:pressure from)))))))
                                            (.moveTo ctx (:x from) (:y from))
                                            (.lineTo ctx (:x to) (:y to))
                                            (.stroke ctx))
