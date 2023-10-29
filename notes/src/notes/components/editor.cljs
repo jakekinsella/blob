@@ -53,23 +53,25 @@
                              (do (set! (.-lineCap ctx) "round")
                                  (set! (.-lineJoin ctx) "round")
                                  (if (= drawing "pen")
-                                   (do (set! (.-lineWidth ctx) 3)
+                                   (do (set! (.-lineWidth ctx) 6)
                                        (set! (.-globalCompositeOperation ctx) "source-over")
                                        (set! (.-strokeStyle ctx) "black"))
                                    (do (set! (.-lineWidth ctx) 15)
                                        (set! (.-globalCompositeOperation ctx) "destination-out")
                                        (set! (.-strokeStyle ctx) "rgba(255,255,255,1)")))
                                  (.beginPath ctx)
-                                 (dorun (map (fn [[from to1 to2]]
-                                           (if (= drawing "pen")
-                                               (if (or (nil? (:pressure from)) (= (:pressure from) 0))
-                                                 (set! (.-lineWidth ctx) 3)
-                                                 (set! (.-lineWidth ctx) (* 15 (math/log (+ 1 (:pressure from)))))))
-                                           (.beginPath ctx)
-                                           (.moveTo ctx (:x from) (:y from))
-                                           (.quadraticCurveTo ctx (:x to1) (:y to1) (:x to2) (:y to2))
-                                           (.stroke ctx))
-                                         (map vector points (rest points) (rest (rest points)))))))
+                                 (dorun
+                                   (map
+                                     (fn [[from to]]
+                                       (let [xc (/ (+ (:x from) (:x to)) 2)
+                                             yc (/ (+ (:y from) (:y to)) 2)]
+                                         (if (= drawing "pen")
+                                             (if (or (nil? (:pressure from)) (= (:pressure from) 0))
+                                               (set! (.-lineWidth ctx) 6)
+                                               (set! (.-lineWidth ctx) (* 15 (math/log (+ 1 (:pressure from)))))))
+                                         (.quadraticCurveTo ctx (:x from) (:y from) xc yc)))
+                                     (map vector points (rest points))))
+                                 (.stroke ctx)))
                 save (fn [] (re-frame/dispatch [::events/save-note @title @body]))
                 add-point (fn [e]
                             (if (.-isPrimary e)
@@ -78,8 +80,10 @@
                                     scale-x (/ (.-width canvas) (.-width rect))
                                     scale-y (/ (.-height canvas) (.-height rect))
                                     x (* (- (.-clientX e) (.-left rect)) scale-x)
-                                    y (* (- (.-clientY e) (.-top rect)) scale-y)]
-                                  (reset! points (concat @points [{:x x :y y :pressure (.-pressure e)}])))))
+                                    y (* (- (.-clientY e) (.-top rect)) scale-y)
+                                    last (last @points)]
+                                  (if (or (nil? last) (> (Math/sqrt (+ (Math/pow (- (:x last) x) 2) (Math/pow (- (:y last) y) 2))) 2))
+                                    (reset! points (concat @points [{:x x :y y :pressure (.-pressure e)}]))))))
                 draw (fn [e]
                        (if @pressed
                          (do (add-point e)
@@ -127,7 +131,8 @@
 (defn build []
   (let [selected @(re-frame/subscribe [::subs/selected])]
     (if (not (= (:title selected) @title))
-      (do (reset! title (:title selected))
+      (do (if (and (not (nil? @title)) (not (string? (:body selected)))) (-> js/window .-location .reload))
+          (reset! title (:title selected))
           (reset! body (:body selected))
           (reset! width (:width @body))
           (reset! height (:width @body))
