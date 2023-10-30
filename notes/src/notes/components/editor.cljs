@@ -78,8 +78,7 @@
                                     x (* (- (.-clientX e) (.-left rect)) scale-x)
                                     y (* (- (.-clientY e) (.-top rect)) scale-y)
                                     last (last @points)]
-                                  (if (or (nil? last) (> (Math/sqrt (+ (Math/pow (- (:x last) x) 2) (Math/pow (- (:y last) y) 2))) 2))
-                                    (reset! points (concat @points [{:x x :y y}]))))))
+                                  (reset! points (concat @points [{:x x :y y}])))))
                 draw (fn [e]
                        (if @pressed
                          (do (add-point e)
@@ -104,8 +103,8 @@
                           (reset! height (+ canvas-height screen-height))
                           (save)))))
                 mount (fn []
-                        (do (set! (-> ref .-current .-width) (:width @body))
-                            (set! (-> ref .-current .-height) (:height @body))
+                        (do (set! (-> ref .-current .-width) (math/ceil (* 1.5 (:width @body))))
+                            (set! (-> ref .-current .-height) (math/ceil (* 1.5 (:height @body))))
                             (set! (-> ref .-current .-style .-width) (str (:width @body) "px"))
                             (set! (-> ref .-current .-style .-height) (str (:height @body) "px"))
                             (dorun (map (fn [line] (draw-line (:drawing line) (:points line))) (:lines @body)))))]
