@@ -79,13 +79,13 @@
                                     y (int (* (- (.-clientY e) (.-top rect)) scale-y))
                                     last (last @points)]
                                   (if (or (nil? last) (> (abs (- (:x last) x)) 1) (> (abs (- (:y last) y)) 1))
-                                    (reset! points (concat @points [{:x x :y y :pressure (.-pressure e)}]))))))
+                                    (do (reset! points (concat @points [{:x x :y y}]))
+                                        (.clearRect ctx 0 0 (-> ref .-current .-width) (-> ref .-current .-height))
+                                        (dorun (map (fn [line] (draw-line (:drawing line) (:points line))) (:lines @body)))
+                                        (draw-line drawing @points))))))
                 draw (fn [e]
                        (if @pressed
-                         (do (add-point e)
-                             (.clearRect ctx 0 0 (-> ref .-current .-width) (-> ref .-current .-height))
-                             (dorun (map (fn [line] (draw-line (:drawing line) (:points line))) (:lines @body)))
-                             (draw-line drawing @points))))
+                         (add-point e)))
                 mousedown (fn [e]
                   (if (.-isPrimary e)
                       (do (reset! pressed (not (= (.-pointerType e) "touch")))
