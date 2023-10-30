@@ -56,7 +56,7 @@
                                    (do (set! (.-lineWidth ctx) 6)
                                        (set! (.-globalCompositeOperation ctx) "source-over")
                                        (set! (.-strokeStyle ctx) "black"))
-                                   (do (set! (.-lineWidth ctx) 15)
+                                   (do (set! (.-lineWidth ctx) 30)
                                        (set! (.-globalCompositeOperation ctx) "destination-out")
                                        (set! (.-strokeStyle ctx) "rgba(255,255,255,1)")))
                                  (.beginPath ctx)
@@ -65,10 +65,6 @@
                                      (fn [[from to]]
                                        (let [xc (/ (+ (:x from) (:x to)) 2)
                                              yc (/ (+ (:y from) (:y to)) 2)]
-                                         (if (= drawing "pen")
-                                             (if (or (nil? (:pressure from)) (= (:pressure from) 0))
-                                               (set! (.-lineWidth ctx) 6)
-                                               (set! (.-lineWidth ctx) (* 15 (math/log (+ 1 (:pressure from)))))))
                                          (.quadraticCurveTo ctx (:x from) (:y from) xc yc)))
                                      (map vector points (rest points))))
                                  (.stroke ctx)))
