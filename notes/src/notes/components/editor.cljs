@@ -75,13 +75,16 @@
                                     rect (.getBoundingClientRect canvas)
                                     scale-x (/ (.-width canvas) (.-width rect))
                                     scale-y (/ (.-height canvas) (.-height rect))
-                                    x (* (- (.-clientX e) (.-left rect)) scale-x)
-                                    y (* (- (.-clientY e) (.-top rect)) scale-y)
+                                    x (int (* (- (.-clientX e) (.-left rect)) scale-x))
+                                    y (int (* (- (.-clientY e) (.-top rect)) scale-y))
                                     last (last @points)]
-                                  (reset! points (concat @points [{:x x :y y}])))))
+                                  (if (or (nil? last) (> (abs (- (:x last) x)) 1) (> (abs (- (:y last) y)) 1))
+                                    (reset! points (concat @points [{:x x :y y :pressure (.-pressure e)}]))))))
                 draw (fn [e]
                        (if @pressed
                          (do (add-point e)
+                             (.clearRect ctx 0 0 (-> ref .-current .-width) (-> ref .-current .-height))
+                             (dorun (map (fn [line] (draw-line (:drawing line) (:points line))) (:lines @body)))
                              (draw-line drawing @points))))
                 mousedown (fn [e]
                   (if (.-isPrimary e)
@@ -110,11 +113,11 @@
                             (dorun (map (fn [line] (draw-line (:drawing line) (:points line))) (:lines @body)))))]
 
             (do (mount)
-                (js/document.addEventListener "pointermove" draw)
-                (js/document.addEventListener "pointerdown" mousedown)
+                (js/document.addEventListener "pointermove" draw (clj->js {:passive true}))
+                (js/document.addEventListener "pointerdown" mousedown (clj->js {:passive true}))
                 (js/document.addEventListener "touchstart" touch (clj->js {:passive false}))
-                (js/document.addEventListener "pointerup" mouseup)
-                (js/document.addEventListener "scroll" scroll)
+                (js/document.addEventListener "pointerup" mouseup (clj->js {:passive true}))
+                (js/document.addEventListener "scroll" scroll (clj->js {:passive true}))
                 (fn [] (do (js/document.removeEventListener "pointermove" draw)
                            (js/document.removeEventListener "pointerdown" mousedown)
                            (js/document.removeEventListener "touchstart" touch)
