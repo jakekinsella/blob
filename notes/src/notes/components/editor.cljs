@@ -80,8 +80,6 @@
                                     last (last @points)]
                                   (if (or (nil? last) (> (abs (- (:x last) x)) 1) (> (abs (- (:y last) y)) 1))
                                     (do (reset! points (concat @points [{:x x :y y}]))
-                                        (.clearRect ctx 0 0 (-> ref .-current .-width) (-> ref .-current .-height))
-                                        (dorun (map (fn [line] (draw-line (:drawing line) (:points line))) (:lines @body)))
                                         (draw-line drawing @points))))))
                 draw (fn [e]
                        (if @pressed
@@ -96,7 +94,9 @@
                       (reset! pressed false)
                       (reset! body (assoc @body :lines (concat (:lines @body) [{:drawing drawing :points @points}])))
                       (save)
-                      (reset! points [])))
+                      (reset! points [])
+                      (.clearRect ctx 0 0 (-> ref .-current .-width) (-> ref .-current .-height))
+                      (dorun (map (fn [line] (draw-line (:drawing line) (:points line))) (:lines @body)))))
                 scroll (fn [e]
                   (let [screen-height (-> js/window .-screen .-height)
                         canvas-height (:height @body)
