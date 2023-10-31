@@ -59,14 +59,14 @@
                                    (do (set! (.-lineWidth ctx) 30)
                                        (set! (.-globalCompositeOperation ctx) "destination-out")
                                        (set! (.-strokeStyle ctx) "rgba(255,255,255,1)")))
-                                 (.beginPath ctx)
                                  (dorun
                                    (map
                                      (fn [[from to]]
+                                         (.beginPath ctx)
                                          (.moveTo ctx (:x from) (:y from))
-                                         (.lineTo ctx (:x to) (:y to)))
-                                     (map vector points (rest points))))
-                                 (.stroke ctx)))
+                                         (.lineTo ctx (:x to) (:y to))
+                                         (.stroke ctx))
+                                     (map vector points (rest points))))))
                 save (fn [] (re-frame/dispatch [::events/save-note @title @body]))
                 add-point (fn [e]
                             (if (.-isPrimary e)
