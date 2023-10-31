@@ -63,9 +63,8 @@
                                  (dorun
                                    (map
                                      (fn [[from to]]
-                                       (let [xc (/ (+ (:x from) (:x to)) 2)
-                                             yc (/ (+ (:y from) (:y to)) 2)]
-                                         (.quadraticCurveTo ctx (:x from) (:y from) xc yc)))
+                                         (.moveTo ctx (:x from) (:y from))
+                                         (.lineTo ctx (:x to) (:y to)))
                                      (map vector points (rest points))))
                                  (.stroke ctx)))
                 save (fn [] (re-frame/dispatch [::events/save-note @title @body]))
