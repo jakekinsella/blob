@@ -88,14 +88,14 @@
                       (do (reset! pressed (not (= (.-pointerType e) "touch")))
                           (draw e))))
                 touch (fn [e] (if @pressed (.preventDefault e)))
-                mouseup (fn [e]
+                mouseup (fn [e] (if @pressed
                   (do (set! (-> js/document .-body .-style .-userSelect) "auto")
                       (reset! pressed false)
                       (reset! body (assoc @body :lines (concat (:lines @body) [{:drawing drawing :points @points}])))
                       (save)
                       (reset! points [])
                       (.clearRect ctx 0 0 (-> ref .-current .-width) (-> ref .-current .-height))
-                      (dorun (map (fn [line] (draw-line (:drawing line) (:points line))) (:lines @body)))))
+                      (dorun (map (fn [line] (draw-line (:drawing line) (:points line))) (:lines @body))))))
                 scroll (fn [e]
                   (let [screen-height (-> js/window .-screen .-height)
                         canvas-height (:height @body)
