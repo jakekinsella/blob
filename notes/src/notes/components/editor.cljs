@@ -1,5 +1,6 @@
 (ns notes.components.editor
   (:require
+    [clojure.math :as math]
     [reagent.core :as r]
     [re-frame.core :as re-frame]
     [react :as react]
@@ -42,7 +43,7 @@
 (defonce points (r/atom []))
 
 (defclass canvas-style []
-  {:background "repeating-linear-gradient(white, white 35px, #777 36px)"})
+  {:background "repeating-linear-gradient(white, white 60px, #777 61px)"})
 (defn canvas-editor []
   (let [ref (react/useRef)
         drawing @(re-frame/subscribe [::subs/drawing])]
@@ -52,18 +53,20 @@
                              (do (set! (.-lineCap ctx) "round")
                                  (set! (.-lineJoin ctx) "round")
                                  (if (= drawing "pen")
-                                   (do (set! (.-lineWidth ctx) 3)
+                                   (do (set! (.-lineWidth ctx) 5)
                                        (set! (.-globalCompositeOperation ctx) "source-over")
                                        (set! (.-strokeStyle ctx) "black"))
-                                   (do (set! (.-lineWidth ctx) 15)
+                                   (do (set! (.-lineWidth ctx) 30)
                                        (set! (.-globalCompositeOperation ctx) "destination-out")
                                        (set! (.-strokeStyle ctx) "rgba(255,255,255,1)")))
-                                 (.beginPath ctx)
-                                 (dorun (map (fn [[from to]]
-                                           (.moveTo ctx (:x from) (:y from))
-                                           (.lineTo ctx (:x to) (:y to))
-                                           (.stroke ctx))
-                                         (map vector points (rest points))))))
+                                 (dorun
+                                   (map
+                                     (fn [[from to]]
+                                         (.beginPath ctx)
+                                         (.moveTo ctx (:x from) (:y from))
+                                         (.lineTo ctx (:x to) (:y to))
+                                         (.stroke ctx))
+                                     (map vector points (rest points))))))
                 save (fn [] (re-frame/dispatch [::events/save-note @title @body]))
                 add-point (fn [e]
                             (if (.-isPrimary e)
@@ -71,24 +74,28 @@
                                     rect (.getBoundingClientRect canvas)
                                     scale-x (/ (.-width canvas) (.-width rect))
                                     scale-y (/ (.-height canvas) (.-height rect))
-                                    x (* (- (.-clientX e) (.-left rect)) scale-x)
-                                    y (* (- (.-clientY e) (.-top rect)) scale-y)]
-                                  (reset! points (concat @points [{:x x :y y}])))))
+                                    x (int (* (- (.-clientX e) (.-left rect)) scale-x))
+                                    y (int (* (- (.-clientY e) (.-top rect)) scale-y))
+                                    last (last @points)]
+                                  (if (or (nil? last) (> (abs (- (:x last) x)) 1) (> (abs (- (:y last) y)) 1))
+                                    (do (reset! points (concat @points [{:x x :y y}]))
+                                        (draw-line drawing @points))))))
                 draw (fn [e]
                        (if @pressed
-                         (do (add-point e)
-                             (draw-line drawing @points))))
+                         (add-point e)))
                 mousedown (fn [e]
                   (if (.-isPrimary e)
                       (do (reset! pressed (not (= (.-pointerType e) "touch")))
                           (draw e))))
                 touch (fn [e] (if @pressed (.preventDefault e)))
-                mouseup (fn [e]
+                mouseup (fn [e] (if @pressed
                   (do (set! (-> js/document .-body .-style .-userSelect) "auto")
                       (reset! pressed false)
                       (reset! body (assoc @body :lines (concat (:lines @body) [{:drawing drawing :points @points}])))
                       (save)
-                      (reset! points [])))
+                      (reset! points [])
+                      (.clearRect ctx 0 0 (-> ref .-current .-width) (-> ref .-current .-height))
+                      (dorun (map (fn [line] (draw-line (:drawing line) (:points line))) (:lines @body))))))
                 scroll (fn [e]
                   (let [screen-height (-> js/window .-screen .-height)
                         canvas-height (:height @body)
@@ -98,34 +105,31 @@
                           (reset! height (+ canvas-height screen-height))
                           (save)))))
                 mount (fn []
-                        (do (set! (-> js/document .-body .-style .-userSelect) "none")
-                            (set! (-> ref .-current .-width) (:width @body))
+                        (do (set! (-> ref .-current .-width) (:width @body))
                             (set! (-> ref .-current .-height) (:height @body))
                             (set! (-> ref .-current .-style .-width) (str (:width @body) "px"))
                             (set! (-> ref .-current .-style .-height) (str (:height @body) "px"))
-                            (dorun (map (fn [line] (draw-line (:drawing line) (:points line))) (:lines @body)))))
-                unmount (fn []
-                        (do (set! (-> js/document .-body .-style .-userSelect) "auto")))]
+                            (dorun (map (fn [line] (draw-line (:drawing line) (:points line))) (:lines @body)))))]
 
             (do (mount)
-                (js/document.addEventListener "pointermove" draw)
-                (js/document.addEventListener "pointerdown" mousedown)
+                (js/document.addEventListener "pointermove" draw (clj->js {:passive true}))
+                (js/document.addEventListener "pointerdown" mousedown (clj->js {:passive true}))
                 (js/document.addEventListener "touchstart" touch (clj->js {:passive false}))
-                (js/document.addEventListener "pointerup" mouseup)
-                (js/document.addEventListener "scroll" scroll)
+                (js/document.addEventListener "pointerup" mouseup (clj->js {:passive true}))
+                (js/document.addEventListener "scroll" scroll (clj->js {:passive true}))
                 (fn [] (do (js/document.removeEventListener "pointermove" draw)
                            (js/document.removeEventListener "pointerdown" mousedown)
                            (js/document.removeEventListener "touchstart" touch)
                            (js/document.removeEventListener "pointerup" mouseup)
-                           (js/document.removeEventListener "scroll" scroll)
-                           (unmount)))))))
+                           (js/document.removeEventListener "scroll" scroll)))))))
 
       [:canvas {:class (canvas-style) :ref ref :width @width :height @height}])))
 
 (defn build []
   (let [selected @(re-frame/subscribe [::subs/selected])]
     (if (not (= (:title selected) @title))
-      (do (reset! title (:title selected))
+      (do (if (and (not (nil? @title)) (not (string? (:body selected)))) (-> js/window .-location .reload))
+          (reset! title (:title selected))
           (reset! body (:body selected))
           (reset! width (:width @body))
           (reset! height (:width @body))

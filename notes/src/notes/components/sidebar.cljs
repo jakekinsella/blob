@@ -78,7 +78,9 @@
   	:user-select "none"
    :cursor "pointer"}
   [:&:hover {:color "black"}]
-  [:&:active {:color "black"}])
+  [:&:active {:color "black"}]
+  (at-media {:max-width "750px"}
+    {:font-size "19px" :padding-top "7px"}))
 (defn folder-title [attrs children]
   (into [:div (merge-with + attrs {:class (folder-title-style)})]
     children))
