@@ -103,3 +103,6 @@ Deploy the cluster:
 `make cluster-deploy VERSION=???`  
 
 ... wait \~10minutes time (until `sudo kubectl get pods` shows all the containers running) ...  
+
+### To-Do
+ - Add link sharing for blob/notes
