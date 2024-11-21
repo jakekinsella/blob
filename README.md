@@ -19,8 +19,8 @@ Barebones, totally local development environment.
    - `brew install openssl`
 
 ### Initial Setup
-`initdb data`  
-`pg_ctl -D data -l logfile start`  
+Complete the prerequisites found at [Central](https://github.com/TheLocust3/central?tab=readme-ov-file#initial-setup).  
+  
 `createdb blob`  
 `make install`  
 `cd blob && make migrate`  
@@ -41,20 +41,9 @@ PGDATABASE=blob
 Navigate to `http://localhost:8280`  
 
 ## Local Deploy
-Deployed as a Kubernetes cluster.  
-
-### Dependencies
- - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
- - [minikube](https://minikube.sigs.k8s.io/docs/)
- - [dune](https://dune.build)
- - [yarn](https://yarnpkg.com)
-
-#### Initial Setup
-
-`minikube start`  
+Complete the prerequisites found at [Central](https://github.com/TheLocust3/central?tab=readme-ov-file#local-deploy).  
+  
 `eval $(minikube docker-env)`  
-`minikube addons enable ingress`  
-`minikube tunnel`  
 `sudo sh -c 'echo "127.0.0.1       blob.localhost" >> /etc/hosts'`
 `sudo sh -c 'echo "127.0.0.1       notes.localhost" >> /etc/hosts'`
   
@@ -62,29 +51,12 @@ Deployed as a Kubernetes cluster.
 #### Build+Deploy
 `make local-publish`  
 `make local-deploy`  
-
-... some amount of waiting ...  
-`kubectl get pods` should show the containers starting up  
   
 Navigate to `https://notes.localhost/login`  
 
 ## Cloud Deploy
-Deploy a single node Kubernetes cluster in AWS.  
+Complete the prerequisites found at [Central](https://github.com/TheLocust3/central?tab=readme-ov-file#cloud-deploy).  
 
-### Dependencies
- - [Packer](http://packer.io)
- - [Terraform](https://www.terraform.io)
-
-### Initial Setup
-  
-Environment variables:
-```
-export AWS_ACCESS_KEY_ID=???
-export AWS_SECRET_ACCESS_KEY=???
-export AWS_ACCOUNT_ID=???
-export AWS_DEFAULT_REGION=us-east-1
-```
-  
 Initialize the build depedencies:  
 `make aws-init`
 
@@ -101,8 +73,6 @@ Export the Control Plane IP:
 Deploy the cluster:  
 `make cluster-publish`  
 `make cluster-deploy VERSION=???`  
-
-... wait \~10minutes time (until `sudo kubectl get pods` shows all the containers running) ...  
 
 ### To-Do
  - Add link sharing for blob/notes
