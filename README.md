@@ -21,10 +21,6 @@ Barebones, totally local development environment.
 ### Initial Setup
 Complete the prerequisites found at [Central](https://github.com/TheLocust3/central?tab=readme-ov-file#initial-setup).  
   
-`createdb blob`  
-`make install`  
-`cd blob && make migrate`  
-  
 Create `database.env` at the root of the repository:
 ```
 PGUSER=jakekinsella
@@ -33,6 +29,10 @@ PGHOST=localhost
 PGPORT=5432
 PGDATABASE=blob
 ```
+  
+`createdb blob`  
+`make install`  
+`cd blob && make migrate`  
 
 ### Run
 `cd blob && make start`  
@@ -44,19 +44,28 @@ Navigate to `http://localhost:8280`
 Complete the prerequisites found at [Central](https://github.com/TheLocust3/central?tab=readme-ov-file#local-deploy).  
   
 `eval $(minikube docker-env)`  
-`sudo sh -c 'echo "127.0.0.1       blob.localhost" >> /etc/hosts'`
-`sudo sh -c 'echo "127.0.0.1       notes.localhost" >> /etc/hosts'`
+`sudo sh -c 'echo "127.0.0.1       blob.cluster.local" >> /etc/hosts'`
+`sudo sh -c 'echo "127.0.0.1       notes.cluster.local" >> /etc/hosts'`
   
 
 #### Build+Deploy
+`eval $(minikube docker-env)`
 `make local-publish`  
 `make local-deploy`  
   
-Navigate to `https://notes.localhost/login`  
+Navigate to `https://notes.cluster.local/login`  
 
 ## Cloud Deploy
 Complete the prerequisites found at [Central](https://github.com/TheLocust3/central?tab=readme-ov-file#cloud-deploy).  
-
+  
+Environment variables:
+```
+export AWS_ACCESS_KEY_ID=???
+export AWS_SECRET_ACCESS_KEY=???
+export AWS_ACCOUNT_ID=???
+export AWS_DEFAULT_REGION=us-east-1
+```
+  
 Initialize the build depedencies:  
 `make aws-init`
 

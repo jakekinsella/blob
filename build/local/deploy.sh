@@ -15,8 +15,8 @@ spec:
     - port: 5432
       targetPort: 5432
   type: LoadBalancer"
-export HOST="blob.localhost"
-export UI_HOST="notes.localhost"
+export HOST="blob.cluster.local"
+export UI_HOST="notes.cluster.local"
 export CENTRAL_BASE="http://central-server:8080/api"
 
 for f in build/cluster/*.yaml; do envsubst < $f | kubectl apply -f -; done
