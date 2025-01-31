@@ -21,14 +21,14 @@
 (defclass card-style []
   {:width "300px"
    :height "200px"
-   :background-color "white"
+   :background-color central/Constants.Colors.Container.background
    :padding-top "20px"
    :padding-bottom "20px"
    :padding-left "30px"
    :padding-right "30px"
-   :border (str "1px solid" central/Constants.colors.black)
+   :border (str "1px solid" central/Constants.Colors.Container.border)
    :border-radius "5px"
-   :box-shadow (str "0px 0px 1px" central/Constants.colors.lightBlack)})
+   :box-shadow (str "0px 0px 1px" central/Constants.Colors.Container.shadow)})
 (defn card [children] (into [:div {:class (card-style)}] children))
 
 (defclass title-style []
@@ -59,11 +59,14 @@
    :height "35px"
    :padding-left "10px"
    :padding-right "10px"
-   :border (str "1px solid" central/Constants.colors.lightBlack)
+   :background "transparent"
+   :color central/Constants.Colors.Text.base
+   :border (str "1px solid" central/Constants.Colors.Container.border)
    :border-radius "3px"
    :font-size "15px"
    :font-family "'Roboto', sans-serif"
    :font-weight "100"}
+  [:&:focus {:outline "none"}]
   (at-media {:max-width "750px"}
     {:font-size "17px"}))
 (defn textbox [attrs]
@@ -73,15 +76,15 @@
   {:width "100%"
    :height "40px"
    :cursor "pointer"
-   :border (str "1px solid" central/Constants.colors.lightBlack)
+   :border (str "1px solid" central/Constants.Colors.Container.border)
    :border-radius "5px"
-   :background-color "white"
+   :background-color central/Constants.Colors.Container.background
    :font-size "18px"
    :font-family "'Roboto', sans-serif"
    :font-weight "100"
-   :color central/Constants.colors.black}
-  [:&:hover {:background-color central/Constants.colors.whiteHover}]
-  [:&:active {:background-color central/Constants.colors.whiteActive}]
+   :color central/Constants.Colors.Text.base}
+  [:&:hover {:background-color central/Constants.Colors.Text.Inverted.hover}]
+  [:&:active {:background-color central/Constants.Colors.Text.Inverted.active}]
   (at-media {:max-width "750px"}
     {:font-size "20px"}))
 (defn submit [child] [:button {:class (submit-style)} child])

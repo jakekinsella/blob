@@ -12,19 +12,19 @@
    :width "82vw"
    :display "flex"
    :align-items "center"
-   :background-color "white"
+   :background-color central/Constants.Colors.Container.background
    :height "50px"
    :padding-left "10px"
    :padding-right "10px"
-   :border-bottom (str "1px solid" central/Constants.colors.black)
-   :box-shadow (str "0px 0px 1px" central/Constants.colors.lightBlack)
+   :border-bottom (str "1px solid" central/Constants.Colors.Container.border)
+   :box-shadow (str "0px 0px 1px" central/Constants.Colors.Container.shadow)
    :justify-content "space-between"})
 (defn pane [children]
   (let [sidebar-open? @(re-frame/subscribe [::subs/sidebar-open?])]
     (into [:div {:class (pane-style) :style {:width (if sidebar-open? "82vw" "100vw")}}] children)))
 
 (defclass title-style []
-  {:font-size "20px" :color central/Constants.colors.black}
+  {:font-size "20px" :color central/Constants.Colors.Text.base}
   (at-media {:max-width "750px"}
     {:font-size "22px"}))
 (defn title [children] (into [:div {:class (title-style)}] children))
@@ -40,8 +40,8 @@
 
 (defclass delete-style []
   {:cursor "pointer"
-   :color central/Constants.colors.black}
-  [:&:hover {:color central/Constants.colors.red}])
+   :color central/Constants.Colors.Text.base}
+  [:&:hover {:color central/Constants.Colors.Base.red}])
 (defn delete [attrs child] [:div (merge-with + attrs {:class (delete-style)}) child])
 
 (defclass open-style []
@@ -54,7 +54,7 @@
 
 (defclass eraser-style []
   {:cursor "pointer"
-   :color central/Constants.colors.black}
+   :color central/Constants.Colors.Text.base}
   [:&:hover {:color "black"}]
   [:&:active {:color "black"}])
 (defn eraser [drawing]

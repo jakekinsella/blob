@@ -11,7 +11,7 @@
 (defn request [url options]
   (->
     (central/Api.Blob.request url (clj->js options))
-    (.then (fn [res] (if (= (.-status res) 200) res (js/reject res))))
+    (.then (fn [res] (if (= (.-status res) 200) res (js/Promise.reject res))))
     (.then (fn [res] (.json res)))
     (.then #(js->clj % :keywordize-keys true))))
 

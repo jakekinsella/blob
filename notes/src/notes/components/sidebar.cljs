@@ -22,9 +22,9 @@
    :position "fixed"
    :overflow-x "hidden"
    :overflow-y "scroll"
-   :border-right (str "1px solid" central/Constants.colors.black)
-   :background-color "white"
-   :box-shadow (str "0px 0px 1px" central/Constants.colors.black)}
+   :border-right (str "1px solid" central/Constants.Colors.Container.border)
+   :background-color central/Constants.Colors.Container.background
+   :box-shadow (str "0px 0px 1px" central/Constants.Colors.Container.shadow)}
   (at-media {:max-width "750px"}
     {:min-width "100%"}))
 (defn pane-inner [children] (into [:div {:class (pane-inner-style)}] children))
@@ -39,8 +39,8 @@
    :padding-bottom "5px"
    :text-decoration "none"
    :font-size "18px"
-   :color central/Constants.colors.black}
-  [:&:hover {:text-decoration "none" :color "black"}]
+   :color central/Constants.Colors.Text.base}
+  [:&:hover {:text-decoration "none" :color central/Constants.Colors.Text.Faint.hover}]
   [:&:visited {:text-decoration "none"}]
   [:&:active {:text-decoration "none"}]
   (at-media {:max-width "750px"}
@@ -57,9 +57,9 @@
    :padding-left "30px"
    :text-decoration "none"
    :font-size "15px"
-   :color central/Constants.colors.black
+   :color central/Constants.Colors.Text.base
    :cursor "pointer"}
-  [:&:hover {:text-decoration "none" :color "black"}]
+  [:&:hover {:text-decoration "none" :color central/Constants.Colors.Text.hover}]
   [:&:visited {:text-decoration "none"}]
   [:&:active {:text-decoration "none"}]
   (at-media {:max-width "750px"}
@@ -77,8 +77,8 @@
   	:font-size "16px"
   	:user-select "none"
    :cursor "pointer"}
-  [:&:hover {:color "black"}]
-  [:&:active {:color "black"}]
+  [:&:hover {:color central/Constants.Colors.Text.Faint.hover}]
+  [:&:active {:color central/Constants.Colors.Text.Faint.hover}]
   (at-media {:max-width "750px"}
     {:font-size "19px" :padding-top "7px"}))
 (defn folder-title [attrs children]
@@ -94,8 +94,8 @@
    :margin-left "auto"
    :margin-right "20px"
    :cursor "pointer"}
-   [:&:hover {:color "black"}]
-   [:&:active {:color "black"}]
+   [:&:hover {:color central/Constants.Colors.Text.hover}]
+   [:&:active {:color central/Constants.Colors.Text.hover}]
    (at-media {:max-width "750px"}
     {:padding-right "10px"}))
 (defn right [attrs children] (into [:div (merge-with + attrs {:class (right-style)})] children))

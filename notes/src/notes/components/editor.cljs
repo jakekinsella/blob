@@ -15,6 +15,8 @@
    :padding-left "1%"
    :padding-right "1%"
    :padding-top "58px"
+   :background "transparent"
+   :color central/Constants.Colors.Text.base
    :border "none"
    :font-size "15px"
    :font-family "'Roboto', sans-serif"
@@ -43,7 +45,7 @@
 (defonce points (r/atom []))
 
 (defclass canvas-style []
-  {:background "repeating-linear-gradient(white, white 60px, #777 61px)"})
+  {:background (str "repeating-linear-gradient(" central/Constants.Colors.Container.background ", " central/Constants.Colors.Container.background " 60px, #777 61px)")})
 (defn canvas-editor []
   (let [ref (react/useRef)
         drawing @(re-frame/subscribe [::subs/drawing])]
@@ -55,7 +57,7 @@
                                  (if (= drawing "pen")
                                    (do (set! (.-lineWidth ctx) 5)
                                        (set! (.-globalCompositeOperation ctx) "source-over")
-                                       (set! (.-strokeStyle ctx) "black"))
+                                       (set! (.-strokeStyle ctx) central/Constants.Colors.Text.base))
                                    (do (set! (.-lineWidth ctx) 30)
                                        (set! (.-globalCompositeOperation ctx) "destination-out")
                                        (set! (.-strokeStyle ctx) "rgba(255,255,255,1)")))
